@@ -1,0 +1,14 @@
+Reseting..
+key-wakeup
+slept for 0 minutes 22 seconds
+
+2012-03-22-1549-L
+r3_robot/tags/release-3.2.6:4975 CLEAN
+
+bootloader id: 4705 5746 516E 2FFF
+assembly: 3.5-lite
+revision: 0
+flash version: 10
+flash info crc passed: 1
+
+battery-current-zero 256
