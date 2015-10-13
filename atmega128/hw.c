@@ -18,7 +18,7 @@
 //#include "usart/usart.h"
 #include "open_interface.h"
 #include "blue_tooth_HC05.h"
-
+#if 0
 void function_i(void)
 {
 	char msg[] = "ATMega128";
@@ -322,199 +322,209 @@ void hw3_q3_c(void)
 
 	bprintf("\r\n");
 }
+/*
+ char read_push_buttons(void)
+ {
+ char ret = 0;
 
-char read_push_buttons(void)
-{
-	char ret = 0;
+ if (bt_isAvailable())
+ {
+ ret = bt_getChar();
+ if (ret == 0x1B) // <ESC>
+ return -1;
 
-	if (bt_isAvailable())
-	{
-		ret = bt_getChar();
-		if (ret == 0x1B) // <ESC>
-			return -1;
+ ret = ret - '0';
+ if (ret <= 0 || ret > 6)
+ ret = 0;
+ }
+ return ret;
+ }*/
+/*
+ #define lprintf bprintf
+ #define wait_ms _delay_ms*/
+/*
+ void update_clock_with_input(char input, clock_t * clock)
+ {
+ switch (input)
+ {
+ case 1:
+ decreaseSeconds(clock);
+ break;
+ case 2:
+ increaseSeconds(clock);
+ break;
+ case 3:
+ decreaseMinutes(clock);
+ break;
+ case 4:
+ increaseMinutes(clock);
+ break;
+ case 5:
+ decreaseHours(clock);
+ break;
+ case 6:
+ increaseHours(clock);
+ break;
+ default:
+ break; //do nothing
+ }
+ }*/
+/*
+ clock_t clock;
 
-		ret = ret - '0';
-		if (ret <= 0 || ret > 6)
-			ret = 0;
-	}
-	return ret;
-}
+ void lab4_part1_clock_main(void)
+ {
+ initClock(&clock);
+ char lab4_input;
+ lab4_input = 0;
+ while (1)
+ {
+ //display time
+ lprintf("%02d:%02d:%02d\r\n", clock.hours, clock.minutes, clock.seconds);
 
-#define lprintf bprintf
-#define wait_ms _delay_ms
+ //enter lab4_input loop
+ while ((lab4_input = read_push_buttons()))
+ {
+ if (lab4_input == -1) //TODO remove this
+ return;
+ update_clock_with_input(lab4_input, &clock);
+ lprintf("%02d:%02d:%02d\r\n", clock.hours, clock.minutes, clock.seconds); //display user change
 
-void update_clock_with_input(char input, clock_t * clock)
-{
-	switch (input)
-	{
-		case 1:
-			decreaseSeconds(clock);
-		break;
-		case 2:
-			increaseSeconds(clock);
-		break;
-		case 3:
-			decreaseMinutes(clock);
-		break;
-		case 4:
-			increaseMinutes(clock);
-		break;
-		case 5:
-			decreaseHours(clock);
-		break;
-		case 6:
-			increaseHours(clock);
-		break;
-		default:
-		break; //do nothing
-	}
-}
+ //The response time of the push button should be 200ms; this means that
+ //if the user holds SW2 down for a long period of time, they should see
+ //the clock's seconds continually increment higher 5 times every second
+ wait_ms(200);
+ }
 
-
-
-clock_t clock;
-
-void lab4_part1_clock_main(void)
-{
-	initClock(&clock);
-	char lab4_input;
-	lab4_input = 0;
-	while (1)
-	{
-		//display time
-		lprintf("%02d:%02d:%02d\r\n", clock.hours, clock.minutes, clock.seconds);
-
-		//enter lab4_input loop
-		while ((lab4_input = read_push_buttons()))
-		{
-			if (lab4_input == -1) //TODO remove this
-				return;
-			update_clock_with_input(lab4_input, &clock);
-			lprintf("%02d:%02d:%02d\r\n", clock.hours, clock.minutes, clock.seconds); //display user change
-
-			//The response time of the push button should be 200ms; this means that
-			//if the user holds SW2 down for a long period of time, they should see
-			//the clock's seconds continually increment higher 5 times every second
-			wait_ms(200);
-		}
-
-		wait_ms(1000);
-		clockTick(&clock);
-	}
-}
-
+ wait_ms(1000);
+ clockTick(&clock);
+ }
+ }
+ */
 //#warning "CLOCK_COUNT may not be defined correctly" // delete this line after defining CLOCK_COUNT
 //#warning "CHECK_COUNT may not be defined correctly" // delete this line after defining CHECK_COUNT
+/*
+ #define CLOCK_COUNT ((F_CPU >> 10)) // Where F_CPU = frequencey of the cpu // TODO - Edit this to be equal to the number of Timer Increments in 1 second
+ #define CHECK_COUNT CLOCK_COUNT / 500 // TODO - Edit this to be equal to the number of Timer Increments in 200 ms
 
+ void timer_init(void)
+ {
+ // set up timer 1: WGM1 bits = 0100, CS = 101, set OCR1A, set TIMSK
+ TCCR1A = 0b00000000;		// WGM1[1:0]=00               <---- See Table 61 and WGM1[3:2] below...This sets CTC (clear timer on compare) with MAX_COUNTER_VALUE = OCR1A (so set OCR1A)
+ TCCR1B = 0b00001101;		// WGM1[3:2]=01, CS=101       <---- See Table 63 CS=101 means clock prescaler of 1/1024
+ OCR1A = CLOCK_COUNT - 1; 	// counter threshold for clock
+ TIMSK = _BV(OCIE1A);		// enable OC interrupt, timer 1, channel A
 
-#define CLOCK_COUNT ((F_CPU >> 10)) // Where F_CPU = frequencey of the cpu // TODO - Edit this to be equal to the number of Timer Increments in 1 second
-#define CHECK_COUNT CLOCK_COUNT / 500 // TODO - Edit this to be equal to the number of Timer Increments in 200 ms
+ // set up timer 3: WGM1 bits = 0100, CS = 101, set OCR3A, set TIMSK
+ TCCR3A = 0b00000000;		// WGM3[1:0]=00
+ TCCR3B = 0b00001101;		// WGM3[3:2]=01, CS=101
+ OCR3A = CHECK_COUNT - 1; 	// counter threshold for checking push button
+ ETIMSK = _BV(OCIE3A);		// enable OC interrupt, timer 3, channel A
 
-void timer_init(void)
-{
-	// set up timer 1: WGM1 bits = 0100, CS = 101, set OCR1A, set TIMSK
-	TCCR1A = 0b00000000;		// WGM1[1:0]=00               <---- See Table 61 and WGM1[3:2] below...This sets CTC (clear timer on compare) with MAX_COUNTER_VALUE = OCR1A (so set OCR1A)
-	TCCR1B = 0b00001101;		// WGM1[3:2]=01, CS=101       <---- See Table 63 CS=101 means clock prescaler of 1/1024
-	OCR1A = CLOCK_COUNT - 1; 	// counter threshold for clock
-	TIMSK = _BV(OCIE1A);		// enable OC interrupt, timer 1, channel A
-
-	// set up timer 3: WGM1 bits = 0100, CS = 101, set OCR3A, set TIMSK
-	TCCR3A = 0b00000000;		// WGM3[1:0]=00
-	TCCR3B = 0b00001101;		// WGM3[3:2]=01, CS=101
-	OCR3A = CHECK_COUNT - 1; 	// counter threshold for checking push button
-	ETIMSK = _BV(OCIE3A);		// enable OC interrupt, timer 3, channel A
-
-	sei();
-}
-
+ sei();
+ }
+ */
 /**
  * Timer interrupt source 1: the function will be called every one second
  * (you need define CLOCK_COUNT correctly)
- */
-ISR( TIMER1_COMPA_vect)
-{
-	clockTick(&clock);
-	// DELETE ME - About the ISR macro
-	// ----------------------------------------
-	// ISR is a macro defined in interrupt.h.  You should not call an ISR function.
-	// The ATmega128 is specifically built to run these functions for you when an
-	// event occurs.
-	//
-	// ISRs (Interrupt Service Routines) are interrupt handlers specific to the platform
-	// on which we're working. In this case, this function will be run when the value
-	// of Timer1 matches OCR1A.
-	//
-	// OCR1A = Output Compare Register A for timer1
-	//
-	// For more information, consult the Atmel User Guide.
-	//
+ *//*
+ ISR( TIMER1_COMPA_vect)
+ {
+ clockTick(&clock);
+ // DELETE ME - About the ISR macro
+ // ----------------------------------------
+ // ISR is a macro defined in interrupt.h.  You should not call an ISR function.
+ // The ATmega128 is specifically built to run these functions for you when an
+ // event occurs.
+ //
+ // ISRs (Interrupt Service Routines) are interrupt handlers specific to the platform
+ // on which we're working. In this case, this function will be run when the value
+ // of Timer1 matches OCR1A.
+ //
+ // OCR1A = Output Compare Register A for timer1
+ //
+ // For more information, consult the Atmel User Guide.
+ //
 
-	// Be sure to correctly initialize CLOCK_COUNT and CHECK_COUNT so these interrupts
-	// get called at the right frequency.
+ // Be sure to correctly initialize CLOCK_COUNT and CHECK_COUNT so these interrupts
+ // get called at the right frequency.
 
-}
+ }*/
 
 /**
  * Timer interrupt source 2: the function will be called every 200 milliseconds
  * (you need define CHECK_COUNT correctly)
- */
-ISR( TIMER3_COMPA_vect)
-{
-	// Insert interrupt handler code for checking push buttons here
-	update_clock_with_input(read_push_buttons(),&clock);
-}
+ *//*
+ ISR( TIMER3_COMPA_vect)
+ {
+ // Insert interrupt handler code for checking push buttons here
+ update_clock_with_input(read_push_buttons(), &clock);
+ }
 
-void lab4_part2_clock_main(void)
+ void lab4_part2_clock_main(void)
+ {
+ timer_init();
+ initClock(&clock);
+ while (1)
+ {
+ if (read_push_buttons() == -1)
+ {
+ //TODO remove this
+ cli();
+ return;
+ }
+
+ //display time
+ lprintf("%02d:%02d:%02d\r\n", clock.hours, clock.minutes, clock.seconds);
+ }
+ }
+ */
+#endif
+
+char max_consecutive_0s(unsigned long x)
 {
-	timer_init();
-	initClock(&clock);
-	while (1)
+	int i;
+	char cur_count = 0;
+	char max_count = 0;
+	char length = sizeof(unsigned long) * 8; //32 bits
+	for (i = 0; i < length; i++)
 	{
-		if(read_push_buttons()==-1)
+		if (x & 0x01)
 		{
-			//TODO remove this
-			cli();
-			return;
+			cur_count = 0;
+		}
+		else
+		{
+			cur_count++;
+			if (cur_count > max_count)
+				max_count = cur_count;
 		}
 
-
-		//display time
-		lprintf("%02d:%02d:%02d\r\n", clock.hours, clock.minutes, clock.seconds);
+		x = x >> 1;
 	}
+	return max_count;
 }
 
 void hw_main(void)
 {
-	lab4_part2_clock_main();
-	/*while (1)
-	{
-		hw3_q3_c();
-		_delay_ms(4000);
-	}
-	void (*tests[5])(void)=
-	{	hw2_q4_a,hw2_q4_b,hw2_q4_c,hw2_q4_d,hw2_q4_e
-	};*/
-	/*
-	 bprintf("\r\nHello World\r\n");
-	 for (i = 0; i < 5; i++)
-	 {
-	 tests[i]();
-	 bprintf("---------------------\r\n");
-	 }*/
 
-	//sizeTest();
-//	tests[3]();
-	/*int i;
-	 for(i=0;i<5;i++)
-	 {
-	 tests[i]();
-	 bprintf("---------------------\r\n");
-	 }*/
-/*
-	while (1)
-	{
-		bprintf("hello\r\n");
+	int num_arr[2] =
+	{ 0x3322, 0x4455 };
+	int *num_ptr;
+	num_ptr = num_arr;
+	bprintf("*num_ptr = %04X\r\n", *num_ptr);
 
-	}*/
+	unsigned long x = 0xF0FC801F;
+	char count = max_consecutive_0s(x);
+	bprintf("#of consecutive_0s in 0x%04X%04X is %d\r\n", (x >> 16), ((int) (x & 0xFFFF)), count);
+
+	x = 0xF00FFE08;
+	count = max_consecutive_0s(x);
+	bprintf("#of consecutive_0s in 0x%04X%04X is %d\r\n", (x >> 16), (x & 0xFFFF), count);
+
+	bprintf("sizeof(int) = %u\r\n", sizeof(int));
+	bprintf("sizeof(unsigned int) = %u\r\n", sizeof(unsigned int));
+	bprintf("sizeof(long) = %u\r\n", sizeof(long));
+	bprintf("sizeof(unsigned long) = %u\r\n", sizeof(unsigned long));
 }
 

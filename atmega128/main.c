@@ -13,6 +13,7 @@
 
 void ftoa(char * str, float val)
 {
+
 	int8_t max_decimals = 4;
 
 	int16_t intValue = val;
@@ -129,7 +130,7 @@ void commandCenterLoop_main()
 				rightWheelVelocity -= 50;
 				oi_set_wheels(leftWheelVelocity, rightWheelVelocity);
 			}
-			else if(c == 't')
+			else if (c == 't')
 			{
 				turn_CW(&sensor, -90);
 			}
@@ -207,14 +208,14 @@ void commandCenterLoop_main()
 				bprintf("Traveling Foward %d cm...\r\n", dist_requested_cm);
 				move_forward_cm(&sensor, dist_requested_cm);
 			}
-			else if(c =='C')//Class hw lab ..etc
-			{
-				lab4_part1_clock_main();
-			}
-			else if(c =='c')//Class hw lab ..etc
-			{
-				lab4_part2_clock_main();
-			}
+			/*			else if (c == 'C')	//Class hw lab ..etc
+			 {
+			 lab4_part1_clock_main();
+			 }
+			 else if (c == 'c')	//Class hw lab ..etc
+			 {
+			 lab4_part2_clock_main();
+			 }*/
 		}
 	}
 }
@@ -249,13 +250,49 @@ void setup(void)
 	oi_init();
 }
 
+char max_0s(unsigned long x)
+{
+	int i;
+	char cur_count = 0;
+	char max_count = 0;
+	char length = sizeof(unsigned long) * 8; //32 bits
+	for (i = 0; i < length; i++)
+	{
+		if (x & 0x01)
+		{
+			cur_count = 0;
+		}
+		else
+		{
+			cur_count++;
+			if (cur_count > max_count)
+				max_count = cur_count;
+		}
+
+		x = x >> 1;
+	}
+	return max_count;
+}
+
 int main(void)
 {
 
 	uint8_t i = 0;
 
 	setup();
-	hw_main();
+
+	unsigned long x = 0xFF00ABCD;
+	char count = max_0s(x);
+	bprintf("#of consecutive_0s in 0x%lX is %d\r\n", x , count);
+
+	x = 0xF0FC801F;
+	count = max_0s(x);
+	bprintf("#of consecutive_0s in 0x%lX is %d\r\n", x , count);
+
+	x = 0xF00FFE08;
+	count = max_0s(x);
+	bprintf("#of consecutive_0s in 0x%0lX is %d\r\n", x , count);
+
 	commandCenterLoop_main();
 	while (1)
 	{
