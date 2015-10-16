@@ -9,7 +9,7 @@
 #include "usart.h"
 
 
-void init_USART(uint32_t baud, uint32_t f_cpu)
+void init_USART0(uint32_t baud, uint32_t f_cpu)
 {
 	/**
 	 *  See page 183    http://www.atmel.com/Images/doc8161.pdf  Uno
@@ -109,7 +109,7 @@ void init_USART1(uint32_t baud, uint32_t f_cpu)
 }
 
 
-uint8_t getChar(void)
+uint8_t getChar0(void)
 {
 	/**
 	 *  USART_Receive(void)
@@ -146,7 +146,7 @@ uint8_t isAvailable1()
 	return (UCSR1A & (1 << RXC1));
 }
 
-uint8_t isAvailable()
+uint8_t isAvailable0()
 {
 	return (UCSR0A & (1 << RXC0));
 }
@@ -169,7 +169,7 @@ void sendChar1(uint8_t data)
 
 }
 
-void sendChar(uint8_t data)
+void sendChar0(uint8_t data)
 {
 	/**
 	 *  USART_Transmit(unsigned char data)
@@ -202,7 +202,7 @@ void sendString1(uint8_t * cstr)
 
 
 
-void sendString(uint8_t * cstr)
+void sendString0(uint8_t * cstr)
 {
 	unsigned long i=0;
 	/*for(i=0;cstr[i]!='\0';i++)
@@ -210,7 +210,7 @@ void sendString(uint8_t * cstr)
 */
 	while(*cstr != '\0')
 	{
-		sendChar(*cstr);
+		sendChar0(*cstr);
 		cstr++;
 	}
 

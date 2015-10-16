@@ -62,7 +62,7 @@ void clearClock(clock_t * clock)
 	clock->minutes = 0;
 	clock->seconds = 0;
 }
-inline void initClock(clock_t * clock)
+void initClock(clock_t * clock)
 {
 	clearClock(clock);
 }

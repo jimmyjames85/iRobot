@@ -6,6 +6,7 @@
  */
 
 #include <util/delay.h>
+#include <stdlib.h>
 #include "open_interface.h"
 
 float distance_traveled_mm(oi_encoder_t * wheel_encoder)

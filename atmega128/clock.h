@@ -23,5 +23,5 @@ void increaseSeconds(clock_t * clock);
 void decreaseSeconds(clock_t * clock);
 void clockTick(clock_t * clock);
 void clearClock(clock_t * clock);
-inline void initClock(clock_t * clock);
+void initClock(clock_t * clock);
 #endif /* ATMEGA128_CLOCK_H_ */

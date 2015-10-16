@@ -9,12 +9,12 @@ uint8_t bt_isAvailable()
 
 uint8_t bt_getChar()
 {
-	return getChar();
+	return getChar0();
 }
 
 void bt_sendChar(unsigned char data)
 {
-	sendChar(data);
+	sendChar0(data);
 }
 
 void bprintf(const char * fmt, ...)
@@ -24,6 +24,6 @@ void bprintf(const char * fmt, ...)
 	va_list args;
 	va_start(args, fmt);
 	vsprintf(buffer, fmt, args);
-	sendString(buffer);
+	sendString0(buffer);
 	va_end(args);
 }

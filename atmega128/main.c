@@ -7,35 +7,10 @@
 #include "open_interface.h"
 #include "blue_tooth_HC05.h"
 #include "movement.h"
-
-#define PI 3.14159265
+#include "util.h"
+#include "ping.h"
 #define ENCODER_MULTIPLIER (4/9)
 
-void ftoa(char * str, float val)
-{
-
-	int8_t max_decimals = 4;
-
-	int16_t intValue = val;
-	int8_t totalChars = sprintf(str, "%d.", intValue);
-	int8_t totalDecimalChars = 0;
-	val = val - intValue;
-
-	if (val < 0)
-		val *= -1;
-	intValue = val * 10;
-	if (intValue < 0)
-		intValue *= -1;
-	val = val * 10;
-
-	while (val != 0 && max_decimals - totalDecimalChars > 0)
-	{
-		totalDecimalChars += sprintf(str + totalChars + totalDecimalChars, "%d", intValue);
-		val = val - intValue;
-		intValue = val * 10;
-		val = val * 10;
-	}
-}
 
 float distance_traveled(oi_encoder_t * encoder)
 {
@@ -229,7 +204,7 @@ void setup(void)
 	//(TXD0/PDO) PE1
 	//(RXD1/INT2)PD2
 	//(TXD1/INT3)PD3
-	init_USART(BLUE_TOOTH_BAUD_RATE, F_CPU);	//TODO integrate pins (usart0 usart1 usart2 etc) into blue_tooth.h and open_interface.h
+	init_USART0(BLUE_TOOTH_BAUD_RATE, F_CPU);	//TODO integrate pins (usart0 usart1 usart2 etc) into blue_tooth.h and open_interface.h
 	init_USART1(OI_ALTERNATE_BAUD_RATE, F_CPU);
 
 	_delay_ms(333);
@@ -280,6 +255,9 @@ int main(void)
 	uint8_t i = 0;
 
 	setup();
+
+	initPing();
+	doPingLoop();
 
 	unsigned long x = 0xFF00ABCD;
 	char count = max_0s(x);
