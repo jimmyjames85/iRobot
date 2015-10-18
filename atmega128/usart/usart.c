@@ -6,7 +6,9 @@
  */
 
 #include <avr/io.h>
+#include <stdarg.h>
 #include "usart.h"
+
 
 
 void init_USART0(uint32_t baud, uint32_t f_cpu)
@@ -216,4 +218,26 @@ void sendString0(uint8_t * cstr)
 
 }
 
+void printf0(const char * fmt, ...)
+{
+	//TODO detect overflow
+	char buffer[1000];
+	va_list args;
+	va_start(args, fmt);
+	vsprintf(buffer, fmt, args);
+	sendString0(buffer);
+	va_end(args);
+}
+
+
+void printf1(const char * fmt, ...)
+{
+	//TODO detect overflow
+	char buffer[1000];
+	va_list args;
+	va_start(args, fmt);
+	vsprintf(buffer, fmt, args);
+	sendString1(buffer);
+	va_end(args);
+}
 

@@ -38,4 +38,7 @@ uint8_t isAvailable1();
 
 void sendString0(uint8_t * cstr);
 void sendString1(uint8_t * cstr);
+
+void printf0(const char * fmt, ...);
+void printf1(const char * fmt, ...);
 #endif /* INCLUDES_COMM_USART_H_ */

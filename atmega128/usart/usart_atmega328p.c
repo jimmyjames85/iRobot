@@ -6,6 +6,7 @@
  */
 
 #include <avr/io.h>
+#include <stdarg.h>
 #include "usart.h"
 
 
@@ -90,6 +91,18 @@ void sendChar0(uint8_t data)
 	UDR0 = data;
 
 }
+
+void printf0(const char * fmt, ...)
+{
+	//TODO detect overflow
+	char buffer[1000];
+	va_list args;
+	va_start(args, fmt);
+	vsprintf(buffer, fmt, args);
+	sendString0(buffer);
+	va_end(args);
+}
+
 
 void sendString0(uint8_t * cstr)
 {

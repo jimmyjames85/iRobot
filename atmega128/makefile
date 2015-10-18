@@ -1,71 +1,75 @@
 ############## UNO ##################
-MMCU=atmega168p
+MMCU=atmega328p
 PARTNO=m328p
 PROGRAMMER=arduino
 F_CPU=16000000UL
 PORT=/dev/ttyACM0
+PORT_OPTIONS=-P $(PORT)
+COMPILE_OPTIONS=-Os -DF_CPU=$(F_CPU) -D___$(MMCU)=1 -mmcu=$(MMCU)
 
 ############## Atmega 128 ##################
-#MMCU=atmega128
-#PARTNO=m128
-#PROGRAMMER=usbasp
-#F_CPU=8000000UL
-
-
+MMCU=atmega128
+PARTNO=m128
+PROGRAMMER=usbasp
+F_CPU=8000000UL
+PORT_OPTIONS=
 
 #F_CPU=1000000UL
 #F_CPU=1843200UL
 
 
 
-.PHONY: pingMainLink pingObjCopy pingUpload clock movement bluetooth open_interface atmega128 main link util objCopy upload all clean usart freshUpload ping
+.PHONY: pingMainLink pingObjCopy pingUpload clock movement bluetooth open_interface atmega128 main timer link util objCopy upload all clean usart freshUpload ping
 
 all: objCopy
 
 usart: usart/usart.c
-	avr-gcc -Os -DF_CPU=$(F_CPU) -mmcu=$(MMCU) -c usart/usart.c -o usart.o
+	avr-gcc $(COMPILE_OPTIONS) -c usart/usart.c -o usart.o
 
 clock: clock.c
-	avr-gcc -Os -DF_CPU=$(F_CPU) -mmcu=$(MMCU) -c clock.c -o clock.o
+	avr-gcc $(COMPILE_OPTIONS) -c clock.c -o clock.o
 
 bluetooth: blue_tooth_HC05.c
-	avr-gcc -Os -DF_CPU=$(F_CPU) -mmcu=$(MMCU) -c blue_tooth_HC05.c -o bt.o
+	avr-gcc $(COMPILE_OPTIONS) -c blue_tooth_HC05.c -o bt.o
 
 movement: movement.c
-	avr-gcc -Os -DF_CPU=$(F_CPU) -mmcu=$(MMCU) -c movement.c -o movement.o
+	avr-gcc $(COMPILE_OPTIONS) -c movement.c -o movement.o
 
 hw: hw.c
-	avr-gcc -Os -DF_CPU=$(F_CPU) -mmcu=$(MMCU) -c hw.c -o hw.o
+	avr-gcc $(COMPILE_OPTIONS) -c hw.c -o hw.o
 
 main: main.c
-	avr-gcc -Os -DF_CPU=$(F_CPU) -mmcu=$(MMCU) -c main.c -o main.o
+	avr-gcc $(COMPILE_OPTIONS) -c main.c -o main.o
 
 open_interface: open_interface.c
-	avr-gcc -Os -DF_CPU=$(F_CPU) -mmcu=$(MMCU) -c open_interface.c -o oi.o
+	avr-gcc $(COMPILE_OPTIONS) -c open_interface.c -o oi.o
 
 atmega128: atmega128.c
-	avr-gcc -Os -DF_CPU=$(F_CPU) -mmcu=$(MMCU) -c atmega128.c -o atmega128.o
+	avr-gcc $(COMPILE_OPTIONS) -c atmega128.c -o atmega128.o
 
-link: main atmega128 usart bluetooth open_interface hw movement clock util ping
-	avr-gcc -mmcu=$(MMCU) main.o hw.o oi.o bt.o usart.o movement.o atmega128.o ping.o util.o clock.o -o main.a
+link: main atmega128 usart bluetooth open_interface hw movement clock util ping timer
+	avr-gcc -mmcu=$(MMCU) main.o hw.o oi.o bt.o usart.o movement.o atmega128.o ping.o timer.o util.o clock.o -o main.a
 
 util: util.c
-	avr-gcc -Os -DF_CPU=$(F_CPU) -mmcu=$(MMCU) -c util.c -o util.o
+	avr-gcc $(COMPILE_OPTIONS) -c util.c -o util.o
+
+timer: timer.c
+	avr-gcc $(COMPILE_OPTIONS) -c timer.c -o timer.o
 
 ping: ping.c
-	avr-gcc -Os -DF_CPU=$(F_CPU) -mmcu=$(MMCU) -c ping.c -o ping.o
+	avr-gcc $(COMPILE_OPTIONS) -c ping.c -o ping.o
 
 pingUsart: usart/usart_atmega328p.c
-	avr-gcc -Os -DF_CPU=$(F_CPU) -mmcu=$(MMCU) -c usart/usart_atmega328p.c -o usart.o
+	avr-gcc $(COMPILE_OPTIONS) -c usart/usart_atmega328p.c -o usart.o
 
-pingMainLink: ping pingUsart
-	avr-gcc -mmcu=$(MMCU)  usart.o ping.o -o pingMain.a
+pingMainLink: ping pingUsart timer
+	avr-gcc -mmcu=$(MMCU)  usart.o ping.o timer.o -o pingMain.a
 
 pingObjCopy: pingMainLink
 	avr-objcopy -O ihex -R .eeprom pingMain.a pingMain.hex
 
 pingUpload: pingObjCopy
-	avrdude -v -p $(PARTNO) -c $(PROGRAMMER) -P $(PORT) -U flash:w:pingMain.hex
+	avrdude -v -p $(PARTNO) -c $(PROGRAMMER) $(PORT_OPTIONS) -U flash:w:pingMain.hex
 
 	
 objCopy: link
