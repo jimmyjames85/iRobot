@@ -9,10 +9,42 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-// TODO add timer_t to hold timer settings such as current prescaler
-// add functions to calculate ticks_to_us, ticks_to_ms, ticks_to_seconds
+double ticks_to_secs(unsigned long ticks, timer_prescaler_t clock_prescaler, unsigned long fcpu)
+{
+	long ttps;	//timerTicksPerSec
+	ttps = fcpu;
+	switch (clock_prescaler)
+	{
+		case ONE_1024TH:
+			ttps = ttps >> 2;
+			/* no break */
+		case ONE_256TH:
+			ttps = ttps >> 2;
+			/* no break */
+		case ONE_64TH:
+			ttps = ttps >> 3;
+			/* no break */
+		case ONE_8TH:
+			ttps = ttps >> 3;
+			/* no break */
+		case NO_PRESCALING:
+			/* no break */
+		default:
+		break;
+	}
+	return (double) ticks / ttps;
+}
 
-void clear_capture_flag_timer1(void)
+unsigned char tmr1_read_capture_flag()
+{
+#if ___atmega328p
+	return TIFR1 & _BV(ICF1);
+#elif ___atmega128
+	return TIFR & _BV(ICF1);
+#endif
+	return 0;
+}
+void tmr1_clear_capture_flag(void)
 {
 
 #if ___atmega328p
@@ -22,7 +54,7 @@ void clear_capture_flag_timer1(void)
 #endif
 }
 
-void set_mode_timer1(unsigned char mode)
+void tmr1_set_mode(unsigned char mode)
 {
 	/*
 	 * see
@@ -33,64 +65,72 @@ void set_mode_timer1(unsigned char mode)
 	if (mode > 15)
 		return;
 
-	unsigned char mask = mode & 0x03;
+	//These mask or clear out the WGM1[3:0] bits
+	char TCCR1A_mask = TCCR1A & ~( _BV(WGM11) | _BV(WGM10));
+	char TCCR1B_mask = TCCR1B & ~( _BV(WGM13) | _BV(WGM12));
 
-#if ___atemga328p
-	//TODO FIX THIS
-	TCCR1A = (TCCR1A & 0xFC) | (mode & 0x03);// sets WGM10 and WGM11
-	TCCR1B = (TCCR1B & 0xFC) | ((mode & 0x0F) >> 2);// sets WGM12 and WGM13 <---wrong
-#elif ___atemga128
-	TCCR1A =(TCCR1A & ~(_BV(WGM10)|_BV(WGM11))) | (_BV(WGM10)|_BV(WGM11))
-	TCCR1B =(TCCR1B & ~(_BV(WGM12)|_BV(WGM13))) | (_BV(WGM12)|_BV(WGM13))
-#endif
+	if (mode & 0x01) //bit0
+		TCCR1A_mask |= _BV(WGM10);
+
+	if (mode & 0x02) //bit1
+		TCCR1A_mask |= _BV(WGM11);
+
+	if (mode & 0x04) //bit2
+		TCCR1B_mask |= _BV(WGM12);
+
+	if (mode & 0x08) //bit3
+		TCCR1B_mask |= _BV(WGM13);
+
+	TCCR1A = TCCR1A_mask;
+	TCCR1B = TCCR1B_mask;
 }
 
-void set_prescaler_timer1(timer_prescaler_t prescaler)
+void tmr1_set_prescaler(timer_prescaler_t prescaler)
 {
-	start_timer1(prescaler);
+	TCCR1B = (TCCR1B & 0xF8) | prescaler; //sets CS1 [2:0]
 }
 
-void set_input_capture_edge_timer1(char enableRisingEdge)
+void tmr1_set_input_capture_edge(char true_is_rising_edge)
 {
-	if (enableRisingEdge)
+	if (true_is_rising_edge)
 		TCCR1B |= _BV(ICES1);
 	else
 		TCCR1B &= ~_BV(ICES1);
 }
 
-void set_enable_overflow_isr_timer1(char enabled)
+void tmr1_enable_overflow_isr(char enable_bool)
 {
 #if ___atmega328p
-	if (enabled)
+	if (enable_bool)
 	TIMSK1 |= _BV(TOIE1);
 	else
 	TIMSK1 &= ~_BV(TOIE1);
 #elif ___atmega128
-	if (enabled)
+	if (enable_bool)
 	TIMSK |= _BV(TOIE1);
 	else
 	TIMSK &= ~_BV(TOIE1);
 #endif
 }
-void set_enable_input_capture_isr_timer1(char enabled)
+void tmr1_enable_input_capture_isr(char enable_bool)
 {
 
 #if ___atmega328p
-	if (enabled)
-		TIMSK1 |= _BV(ICIE1);
+	if (enable_bool)
+	TIMSK1 |= _BV(ICIE1);
 	else
-		TIMSK1 &= ~_BV(ICIE1);
+	TIMSK1 &= ~_BV(ICIE1);
 #elif ___atmega128
-	if (enabled)
-		TIMSK |= _BV(TICIE1);
+	if (enable_bool)
+	TIMSK |= _BV(TICIE1);
 	else
-		TIMSK &= ~_BV(TICIE1);
+	TIMSK &= ~_BV(TICIE1);
 #endif
 }
 
-void clear_timer1(void)
+void tmr1_clear_count(void)
 {
-	//only clear's time if timer is stoped
+	//only clear's time if timer is stopped
 	//must write temp (high) byte first, then low byte, in order to write both bytes synchronously
 	if (!(TCCR1B & 0x07))
 	{
@@ -99,27 +139,68 @@ void clear_timer1(void)
 	}
 }
 
-void stop_timer1(void)
+void tmr1_stop(void)
 {
-	TCCR1B &= (0xF8);	// set no clock for timer
+	tmr1_set_prescaler(STOPPED); //set no clock for timer
 }
 
-void start_timer1(timer_prescaler_t prescaler)
+void tmr1_start(timer_prescaler_t prescaler)
 {
-	TCCR1B = (TCCR1B & 0xFC) | prescaler; //sets CS1 [2:0]
+	tmr1_set_prescaler(prescaler);
 }
-unsigned read_timer1(void)
+unsigned tmr1_read_count(void)
 {
 	//must read low byte first in order to read temp (high) byte
 	unsigned int read = TCNT1L;
 	read |= (TCNT1H << 8);
 	return read;
 }
-unsigned read_input_capture_timer1(void)
+unsigned tmr1_read_input_capture_count(void)
 {
 	//must read low byte first in order to read temp (high) byte
 	unsigned int read = ICR1L;
 	read |= (ICR1H << 8);
 	return read;
+}
+
+void tmr1_enable_output_compare_A_match_isr(char enable_bool)
+{
+#if ___atmega328p
+	if(enable_bool)
+	TIMSK1 |= _BV(OCIE1A);
+	else
+	TIMSK1 &= ~_BV(OCIE1A);
+#elif ___atmega128
+	if(enable_bool)
+	TIMSK |= _BV(OCIE1A);
+	else
+	TIMSK &= ~_BV(OCIE1A);
+#endif
+}
+
+void tmr1_enable_output_compare_B_match_isr(char enable_bool)
+{
+#if ___atmega328p
+	if(enable_bool)
+	TIMSK1 |= _BV(OCIE1B);
+	else
+	TIMSK1 &= ~_BV(OCIE1B);
+#elif ___atmega128
+	if(enable_bool)
+	TIMSK |= _BV(OCIE1B);
+	else
+	TIMSK &= ~_BV(OCIE1B);
+#endif
+}
+
+void tmr1_set_output_compare_A_value(unsigned int compare_val)
+{
+	OCR1AH = compare_val >> 8;
+	OCR1AL = compare_val & 0x00FF;
+}
+void tmr1_set_output_compare_B_value(unsigned int compare_val)
+{
+	OCR1BH = compare_val >> 8;
+	OCR1BL = compare_val & 0x00FF;
 }
 

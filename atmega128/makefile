@@ -8,21 +8,54 @@ PORT_OPTIONS=-P $(PORT)
 COMPILE_OPTIONS=-Os -DF_CPU=$(F_CPU) -D___$(MMCU)=1 -mmcu=$(MMCU)
 
 ############## Atmega 128 ##################
-MMCU=atmega128
-PARTNO=m128
-PROGRAMMER=usbasp
-F_CPU=8000000UL
-PORT_OPTIONS=
+#MMCU=atmega128
+#PARTNO=m128
+#PROGRAMMER=usbasp
+#F_CPU=8000000UL
+#PORT_OPTIONS=
 
 #F_CPU=1000000UL
 #F_CPU=1843200UL
 
 
 
-.PHONY: pingMainLink pingObjCopy pingUpload clock movement bluetooth open_interface atmega128 main timer link util objCopy upload all clean usart freshUpload ping
+.PHONY: adc adc_test ping_test_link ping_test_objCopy ping_test_upload clock movement bluetooth open_interface atmega128 main timer link util objCopy upload all clean usart freshUpload ping
 
 all: objCopy
 
+adc: adc.c
+	avr-gcc $(COMPILE_OPTIONS) -c adc.c -o adc.o
+
+################### pwm test
+
+pwm_test: pwm_test.c
+	avr-gcc $(COMPILE_OPTIONS) -c pwm_test.c -o pwm_test.o
+
+pwm_test_link: pwm_test usart util timer
+	avr-gcc -mmcu=$(MMCU)  usart.o pwm_test.o timer.o util.o -o pwm_test.a
+
+pwm_test_objCopy: pwm_test_link
+	avr-objcopy -O ihex -R .eeprom pwm_test.a pwm_test.hex
+
+pwm_test_upload: pwm_test_objCopy
+	avrdude -v -p $(PARTNO) -c $(PROGRAMMER) $(PORT_OPTIONS) -U flash:w:pwm_test.hex
+
+################### adc test
+
+adc_test: adc_test.c
+	avr-gcc $(COMPILE_OPTIONS) -c adc_test.c -o adc_test.o
+
+adc_test_link: adc adc_test usart util timer
+	avr-gcc -mmcu=$(MMCU)  usart.o adc.o adc_test.o timer.o util.o -o adc_test.a
+
+adc_test_objCopy: adc_test_link
+	avr-objcopy -O ihex -R .eeprom adc_test.a adc_test.hex
+
+adc_test_upload: adc_test_objCopy
+	avrdude -v -p $(PARTNO) -c $(PROGRAMMER) $(PORT_OPTIONS) -U flash:w:adc_test.hex
+
+################### adc test
+	
 usart: usart/usart.c
 	avr-gcc $(COMPILE_OPTIONS) -c usart/usart.c -o usart.o
 
@@ -59,17 +92,17 @@ timer: timer.c
 ping: ping.c
 	avr-gcc $(COMPILE_OPTIONS) -c ping.c -o ping.o
 
-pingUsart: usart/usart_atmega328p.c
-	avr-gcc $(COMPILE_OPTIONS) -c usart/usart_atmega328p.c -o usart.o
+ping_test: ping_test.c
+	avr-gcc $(COMPILE_OPTIONS) -c ping_test.c -o ping_test.o
 
-pingMainLink: ping pingUsart timer
-	avr-gcc -mmcu=$(MMCU)  usart.o ping.o timer.o -o pingMain.a
+ping_test_link: ping_test usart timer util
+	avr-gcc -mmcu=$(MMCU)  usart.o ping_test.o util.o timer.o -o ping_test.a
 
-pingObjCopy: pingMainLink
-	avr-objcopy -O ihex -R .eeprom pingMain.a pingMain.hex
+ping_test_objCopy: ping_test_link
+	avr-objcopy -O ihex -R .eeprom ping_test.a ping_test.hex
 
-pingUpload: pingObjCopy
-	avrdude -v -p $(PARTNO) -c $(PROGRAMMER) $(PORT_OPTIONS) -U flash:w:pingMain.hex
+ping_test_upload: ping_test_objCopy
+	avrdude -v -p $(PARTNO) -c $(PROGRAMMER) $(PORT_OPTIONS) -U flash:w:ping_test.hex
 
 	
 objCopy: link

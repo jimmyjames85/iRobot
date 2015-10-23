@@ -1,11 +1,12 @@
 /*
- * ping.c
+ * ping_test.c
  *
- *  Created on: Oct 13, 2015
+ *  Created on: Oct 21, 2015
  *      Author: jim
  */
 
-//#include "ping.h"
+
+//TODO #include "ping.h"
 #include <util/delay.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -31,6 +32,7 @@ void initPing(timer_prescaler_t prescaler)
 	tmr1_enable_input_capture_isr(1);
 	tmr1_enable_overflow_isr(1);
 }
+
 
 ISR(TIMER1_OVF_vect)
 {

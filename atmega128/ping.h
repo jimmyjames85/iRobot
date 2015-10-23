@@ -8,7 +8,7 @@
 #ifndef ATMEGA128_PING_H_
 #define ATMEGA128_PING_H_
 
-void initPing(void);
+void initPing(timer_prescaler_t prescaler);
 
 
 void doPingLoop(void);//TODO remove

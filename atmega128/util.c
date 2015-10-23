@@ -11,7 +11,7 @@
 void ftoa(char * str, float val)
 {
 
-	int8_t max_decimals = 4;
+	int8_t max_decimals = 6;
 
 	int16_t intValue = val;
 	int8_t totalChars = sprintf(str, "%d.", intValue);

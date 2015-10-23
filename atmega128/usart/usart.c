@@ -9,8 +9,6 @@
 #include <stdarg.h>
 #include "usart.h"
 
-
-
 void init_USART0(uint32_t baud, uint32_t f_cpu)
 {
 	/**
@@ -37,17 +35,11 @@ void init_USART0(uint32_t baud, uint32_t f_cpu)
 	UBRR0H = (unsigned char) (UBRRn_BaudRateCalculation >> 8);
 	UBRR0L = (unsigned char) UBRRn_BaudRateCalculation;
 
-
 	/* Enable receiver and transmitter */
 	UCSR0B = (1 << RXEN0) | (1 << TXEN0);
 
 	/* Set frame format: 8data, 2stop bit */
 	//UCSR0C = (1 << USBS0) | (3 << UCSZ00);
-
-
-
-
-
 	/* Set frame format: 8data, 2stop bit */
 	UCSR0C = (1 << USBS0) | (1 << UCSZ01) | (1 << UCSZ00);
 	// Keep in mind the data transfer size is determined by three bits.
@@ -57,10 +49,11 @@ void init_USART0(uint32_t baud, uint32_t f_cpu)
 
 }
 
-
-
 void init_USART1(uint32_t baud, uint32_t f_cpu)
 {
+#if ___atmega328p //not for uno
+	return;
+#else
 	/**
 	 *  See page 183    http://www.atmel.com/Images/doc8161.pdf  Uno
 	 *  See page 211    http://www.atmel.com/images/doc2549.pdf  Mega_Adk
@@ -85,21 +78,14 @@ void init_USART1(uint32_t baud, uint32_t f_cpu)
 	UBRR1H = (unsigned char) (UBRRn_BaudRateCalculation >> 8);
 	UBRR1L = (unsigned char) UBRRn_BaudRateCalculation;
 
-
 	/* Enable receiver and transmitter */
 	UCSR1B = (1 << RXEN1) | (1 << TXEN1);
 
 	/* Set frame format: 8data, 2stop bit */
 	//UCSR0C = (1 << USBS0) | (3 << UCSZ00);
-
-
-
-
-
 	/* Set frame format: 8data, 2stop bit */
 
 	//UCSR1C = (1 << USBS1) | (1 << UCSZ11) | (1 << UCSZ10);
-
 	//Roomba is only 1-stop bit
 	UCSR1C = (0 << USBS1) | (1 << UCSZ11) | (1 << UCSZ10);
 
@@ -107,9 +93,9 @@ void init_USART1(uint32_t baud, uint32_t f_cpu)
 	// UCSZn0, UCSZn1-set in UCSRnC register- and UCSZn2 set in UCSRnB
 	// in this case we want UCSZn2 to be zero, hence it is not explicitly coded
 	// when we are setting the UCSRnB register above
+#endif
 
 }
-
 
 uint8_t getChar0(void)
 {
@@ -121,7 +107,8 @@ uint8_t getChar0(void)
 	 */
 
 	/* Wait for data to be received */
-	while (!(UCSR0A & (1 << RXC0)) );
+	while (!(UCSR0A & (1 << RXC0)))
+		;
 
 	/* Get and return received data from buffer */
 	return UDR0;
@@ -129,6 +116,9 @@ uint8_t getChar0(void)
 
 uint8_t getChar1(void)
 {
+#if ___atmega328p //not for uno
+	return;
+#else
 	/**
 	 *  USART_Receive(void)
 	 *  See page 187 - 188		http://www.atmel.com/images/doc8161.pdf  Uno
@@ -137,15 +127,21 @@ uint8_t getChar1(void)
 	 */
 
 	/* Wait for data to be received */
-	while (!(UCSR1A & (1 << RXC1)) );
+	while (!(UCSR1A & (1 << RXC1)))
+		;
 
 	/* Get and return received data from buffer */
 	return UDR1;
+#endif
 }
 
 uint8_t isAvailable1()
 {
+#if ___atmega328p //not for uno
+	return;
+#else
 	return (UCSR1A & (1 << RXC1));
+#endif
 }
 
 uint8_t isAvailable0()
@@ -155,6 +151,9 @@ uint8_t isAvailable0()
 
 void sendChar1(uint8_t data)
 {
+#if ___atmega328p //not for uno
+	return;
+#else
 	/**
 	 *  USART_Transmit(unsigned char data)
 	 *  See page 184      http://www.atmel.com/Images/doc8161.pdf  Uno
@@ -163,12 +162,12 @@ void sendChar1(uint8_t data)
 	 */
 
 	/* wait for empty transmit buffer */
-	while (!(UCSR1A & (1 << UDRE1)));
-
+	while (!(UCSR1A & (1 << UDRE1)))
+		;
 
 	/* Put data into buffer, sends the data */
 	UDR1 = data;
-
+#endif
 }
 
 void sendChar0(uint8_t data)
@@ -181,36 +180,36 @@ void sendChar0(uint8_t data)
 	 */
 
 	/* wait for empty transmit buffer */
-	while (!(UCSR0A & (1 << UDRE0)));
-
+	while (!(UCSR0A & (1 << UDRE0)))
+		;
 
 	/* Put data into buffer, sends the data */
 	UDR0 = data;
 
 }
 
-
 void sendString1(uint8_t * cstr)
 {
-	unsigned long i=0;
-	while(*cstr != '\0')
+#if ___atmega328p //not for uno
+	return;
+#else
+	unsigned long i = 0;
+	while (*cstr != '\0')
 	{
 		sendChar1(*cstr);
 		cstr++;
 	}
-
+#endif
 }
-
-
-
 
 void sendString0(uint8_t * cstr)
 {
-	unsigned long i=0;
+
+	unsigned long i = 0;
 	/*for(i=0;cstr[i]!='\0';i++)
-		sendChar(cstr[i]);
-*/
-	while(*cstr != '\0')
+	 sendChar(cstr[i]);
+	 */
+	while (*cstr != '\0')
 	{
 		sendChar0(*cstr);
 		cstr++;
@@ -229,9 +228,11 @@ void printf0(const char * fmt, ...)
 	va_end(args);
 }
 
-
 void printf1(const char * fmt, ...)
 {
+#if ___atmega328p //not for uno
+	return;
+#else
 	//TODO detect overflow
 	char buffer[1000];
 	va_list args;
@@ -239,5 +240,6 @@ void printf1(const char * fmt, ...)
 	vsprintf(buffer, fmt, args);
 	sendString1(buffer);
 	va_end(args);
+#endif
 }
 
