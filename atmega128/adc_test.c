@@ -47,22 +47,24 @@ unsigned long average_n_readings(unsigned char n)
 
 	return sum / n;
 }
-
+//uses ir sensor to test
 int main(void)
 {
-	//uno input capture pin is PB0 (uno D8)
-	//128 input capture pin is PD4
 
 #if ___atmega328p
 	init_USART0(9600, F_CPU);
 	adc_set_vref(ADC_AREF);
 #elif ___atmega128
 	init_USART0(BLUE_TOOTH_BAUD_RATE, F_CPU);
-	adc_set_vref(ADC_INTERNAL_VREF); //~2.5
+	//adc_set_vref(ADC_INTERNAL_VREF); //~2.5
+	adc_set_vref(ADC_AREF);
 #endif
 
-
 	adc_select_channel(2);
+	//uno adc2 is pc2 (uno a2)
+	//atmega128 adc2 is pf2
+
+
 	adc_set_prescaler(ADC_ONE_64TH);	//TODO create method find_good_prescaler_for_adc_based_on_f_cpu
 
 	adc_enable(1);

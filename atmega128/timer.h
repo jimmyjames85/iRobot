@@ -44,6 +44,16 @@ typedef enum TIMER_MODE
 
 } timer_mode_t;
 
+typedef enum TIMER_COMPARE_OUTPUT_MODE
+{
+	// @formatter:off
+	TIMER_COMPARE_OUTPUT_DISCONNECTED = 0,
+	TIMER_COMPARE_OUTPUT_TOGGLE = 1,
+	TIMER_COMPARE_OUTPUT_SET_LOW = 2,
+	TIMER_COMPARE_OUTPUT_SET_HIGH = 3
+
+	// @formatter:on
+} timer_compare_output_mode_t;
 /**
  * fcpu  - base frequency
  * clock_prescaler -
@@ -62,12 +72,46 @@ void tmr1_start(timer_prescaler_t);
 
 void tmr1_enable_output_compare_A_match_isr(char enable_bool);
 void tmr1_enable_output_compare_B_match_isr(char enable_bool);
+void tmr1_enable_output_compare_C_match_isr(char enable_bool);
 
 void tmr1_set_output_compare_A_value(unsigned int compare_val);
 void tmr1_set_output_compare_B_value(unsigned int compare_val);
+void tmr1_set_output_compare_C_value(unsigned int compare_val);
+
+void tmr1_set_output_compare_A_mode(timer_compare_output_mode_t);
+void tmr1_set_output_compare_B_mode(timer_compare_output_mode_t);
+void tmr1_set_output_compare_C_mode(timer_compare_output_mode_t);
+
 
 unsigned char tmr1_read_capture_flag(void);
 unsigned tmr1_read_count(void);
 unsigned tmr1_read_input_capture_count(void);
+
+
+void tmr3_set_mode(unsigned char);
+void tmr3_set_prescaler(timer_prescaler_t);
+void tmr3_set_input_capture_edge(char true_is_rising_edge);
+void tmr3_enable_input_capture_isr(char enable_bool);
+void tmr3_enable_overflow_isr(char enable_bool);
+void tmr3_clear_count(void);
+void tmr3_clear_capture_flag(void);
+void tmr3_stop(void);
+void tmr3_start(timer_prescaler_t);
+
+void tmr3_enable_output_compare_A_match_isr(char enable_bool);
+void tmr3_enable_output_compare_B_match_isr(char enable_bool);
+void tmr3_enable_output_compare_C_match_isr(char enable_bool);
+
+void tmr3_set_output_compare_A_value(unsigned int compare_val);
+void tmr3_set_output_compare_B_value(unsigned int compare_val);
+void tmr3_set_output_compare_C_value(unsigned int compare_val);
+
+void tmr3_set_output_compare_A_mode(timer_compare_output_mode_t);
+void tmr3_set_output_compare_B_mode(timer_compare_output_mode_t);
+void tmr3_set_output_compare_C_mode(timer_compare_output_mode_t);
+
+unsigned char tmr3_read_capture_flag(void);
+unsigned tmr3_read_count(void);
+unsigned tmr3_read_input_capture_count(void);
 
 #endif /* TIMER_H_ */
