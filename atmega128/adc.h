@@ -10,8 +10,18 @@
 
 typedef enum ADC_PRESCALER
 {
-	//note ONE_HALF and ONE_2NDTH are the same prescaler
-	ADC_ONE_HALF = 0x00, ADC_ONE_2NDTH=0x01, ADC_ONE_4TH = 0x02, ADC_ONE_8TH = 0x03, ADC_ONE_16TH = 0x04, ADC_ONE_32NDTH = 0x05, ADC_ONE_64TH = 0x06, ADC_ONE_128TH = 0x07
+
+	// @formatter:off
+
+	ADC_ONE_HALF = 0x00, //note ONE_HALF and ONE_2NDTH are the same prescaler
+	ADC_ONE_2NDTH = 0x01,
+	ADC_ONE_4TH = 0x02,
+	ADC_ONE_8TH = 0x03,
+	ADC_ONE_16TH = 0x04,
+	ADC_ONE_32NDTH = 0x05,
+	ADC_ONE_64TH = 0x06,
+	ADC_ONE_128TH = 0x07
+// @formatter:on
 } adc_prescaler_t;
 
 typedef enum ADC_AREF_SELECTION
@@ -33,4 +43,8 @@ unsigned char adc_is_enabled_read_conversion_complete_isr();
 void adc_enable_free_running_mode(char enable_bool);
 void adc_enable_left_adjust(char enable_bool);
 unsigned int adc_read_data();
+
+//returns -1 if out of range TODO
+//adc_prescaler_t calculate_prescaler(unsigned long f_cpu);
+
 #endif /* ATMEGA128_ADC_H_ */

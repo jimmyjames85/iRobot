@@ -77,6 +77,7 @@ unsigned char adc_is_enabled_read_conversion_complete_isr()
 {
 	return ADCSRA & _BV(ADIE);
 }
+
 void adc_enable_free_running_mode(char enable_bool)
 {
 #if ___atmega328p 	//uno	pg264
@@ -104,7 +105,7 @@ void adc_enable_free_running_mode(char enable_bool)
 }
 void adc_enable_left_adjust(char enable_bool)
 {
-	if(enable_bool)
+	if (enable_bool)
 		ADMUX |= _BV(ADLAR);
 	else
 		ADMUX &= ~_BV(ADLAR);
@@ -113,17 +114,36 @@ void adc_enable_left_adjust(char enable_bool)
 unsigned int adc_read_data()
 {
 	unsigned int data;
-	if(	ADMUX & _BV(ADLAR))
+	if ( ADMUX & _BV(ADLAR))
 	{
 		//left adjusted
-		data = ADCL>>6;
-		data |= (ADCH<<2);
+		data = ADCL >> 6;
+		data |= (ADCH << 2);
 	}
 	else
 	{
 		//right adjusted
 		data = ADCL;
-		data |= (ADCH<<8);
+		data |= (ADCH << 8);
 	}
 	return data;
+}
+
+adc_prescaler_t calculate_prescaler(unsigned long f_cpu)
+{
+	//TODO
+
+	return -1;
+	long max_freq = f_cpu / 50000;
+	long min_freq = f_cpu / 200000;
+
+	//max_freq
+	/*
+	 * AVR ADC must be clocked at frequency between 50 and 200kHz.
+	 * So we need to set proper prescaller bits so that scaled system
+	 * clock would fit in this range. As our AVR is clocked at 16MHz
+	 * we are going to use 128 scaling factor by setting ADPS0, ADPS1
+	 * and ADPS2 bits in ADCSRA register.
+	 * This gives 16000000/128=125kHz of ADC clock.
+	 */
 }

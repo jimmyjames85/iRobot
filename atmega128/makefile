@@ -5,19 +5,18 @@ PROGRAMMER=arduino
 F_CPU=16000000UL
 PORT=/dev/ttyACM0
 PORT_OPTIONS=-P $(PORT)
-COMPILE_OPTIONS=-Os -DF_CPU=$(F_CPU) -D___$(MMCU)=1 -mmcu=$(MMCU)
+
 
 ############## Atmega 128 ##################
-MMCU=atmega128
-PARTNO=m128
-PROGRAMMER=usbasp
-F_CPU=8000000UL
-PORT_OPTIONS=
-
+#MMCU=atmega128
+#PARTNO=m128
+#PROGRAMMER=usbasp
+#F_CPU=8000000UL
+#PORT_OPTIONS=
 #F_CPU=1000000UL
 #F_CPU=1843200UL
 
-
+COMPILE_OPTIONS=-Os -DF_CPU=$(F_CPU) -D___$(MMCU)=1 -mmcu=$(MMCU)  
 
 .PHONY: adc adc_test ping_test_link ping_test_objCopy ping_test_upload clock movement bluetooth open_interface atmega128 main timer link util objCopy upload all clean usart freshUpload ping
 
@@ -45,8 +44,8 @@ pwm_test_upload: pwm_test_objCopy
 adc_test: adc_test.c
 	avr-gcc $(COMPILE_OPTIONS) -c adc_test.c -o adc_test.o
 
-adc_test_link: adc adc_test usart util timer
-	avr-gcc -mmcu=$(MMCU)  usart.o adc.o adc_test.o timer.o util.o -o adc_test.a
+adc_test_link: adc adc_test usart util timer list
+	avr-gcc -mmcu=$(MMCU)  usart.o adc.o adc_test.o list.o timer.o util.o -o adc_test.a
 
 adc_test_objCopy: adc_test_link
 	avr-objcopy -O ihex -R .eeprom adc_test.a adc_test.hex
@@ -85,6 +84,9 @@ link: main atmega128 usart bluetooth open_interface hw movement clock util ping 
 
 util: util.c
 	avr-gcc $(COMPILE_OPTIONS) -c util.c -o util.o
+
+list: list.c
+	avr-gcc $(COMPILE_OPTIONS) -c list.c -o list.o
 
 timer: timer.c
 	avr-gcc $(COMPILE_OPTIONS) -c timer.c -o timer.o
