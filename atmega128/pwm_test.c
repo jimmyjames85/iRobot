@@ -13,7 +13,7 @@
 #include "timer.h"
 #include "util.h"
 #include "blue_tooth_HC05.h"
-
+#include "servo.h"
 volatile char compa;
 volatile char compb;
 ISR(TIMER1_COMPA_vect)
@@ -64,6 +64,7 @@ void timer1_mode_test()
 }
 void tmr3_set_compareA_test()
 {
+#if ___atmega128
 	unsigned int testVals[2] =
 	{ 0xFF9a, 0x0A4B };
 	int i;
@@ -76,10 +77,11 @@ void tmr3_set_compareA_test()
 		readTop |= (OCR3AH << 8);
 		printf0("reading ocra at: 0x%04X\r\n", readTop);
 	}
-
+#endif
 }
 void timer3_mode_test()
 {
+#if ___atmega128
 
 	unsigned int i;
 	int j;
@@ -105,8 +107,64 @@ void timer3_mode_test()
 		printf0("   TCCR3A=0x%02X     TCCR3B=0x%02X\r\n", TCCR3A, TCCR3B);
 		_delay_ms(1000);
 	}
+#endif
 }
 
+servo_print(servo_data_t * servo)
+{
+	printf0("       cur pulse width: %u\r\n",servo->cur_pulse_width);
+	//printf0("       max pulse width: %u\r\n",servo->max_pulse_width);
+	printf0("          ticks_per_ms: %u\r\n",servo->ticks_per_ms);
+	//printf0("pulse width single deg: %u\r\n",servo->pulse_width_single_degree);
+	//printf0("pulse width in degrees: %u\r\n",servo->cur_pulse_width/servo->pulse_width_single_degree);
+}
+void servo_test()
+{
+	servo_data_t rservo;//fake malloc
+	servo_data_t * servo = &rservo;
+	servo_init(servo);
+	servo_calibrate(servo);
+	while(1)
+	{
+		if(isAvailable0())
+		{
+			char c = getChar0();
+			switch(c)
+			{
+				case '0':
+					servo_set_position(servo,0);
+					break;
+				case '4':
+					servo_set_position(servo,45);
+					break;
+				case '9':
+					servo_set_position(servo, 90);
+					break;
+				case '3':
+					servo_set_position(servo,135);
+					break;
+				case '8':
+					servo_set_position(servo, 180);
+					break;
+				case '+':
+					servo_increment_degrees(servo,5);
+					break;
+				case '-':
+					servo_decrement_degrees(servo,5);
+					break;
+				default:
+					break;
+			}
+
+			printf0("You entered: %c\r\n",c);
+			servo_print(servo);
+
+
+		}
+
+
+	}
+}
 int main(void)
 {
 	//uno input capture pin is PB0 (uno D8)
@@ -118,6 +176,7 @@ int main(void)
 	init_USART0(BLUE_TOOTH_BAUD_RATE, F_CPU);
 #endif
 
+	servo_test();
 	unsigned int ticks_per_ms = 0; //ticks per ms
 
 #if ___atmega328p
@@ -130,7 +189,6 @@ int main(void)
 	tmr3_set_prescaler(ONE_64TH);//clock 4 us per tick @ 16MHz base
 	ticks_per_ms = 125;//ticks per ms
 	DDRB |= _BV(PB6);// OC1B set up output for servo
-	DDRB |= _BV(PB7);//OC1C
 
 	DDRE |= _BV(PE4);// OC3B set up output for servo
 	DDRE |= _BV(PE5);//OC3C
@@ -161,6 +219,7 @@ int main(void)
 
 		unsigned int pulse_width = pulseWidth_ms * ticks_per_ms; //250 * 4 us per tick = 1000 us... we want 1.5 ms
 		unsigned int top = pulse_width + 20 * ticks_per_ms; // 20ms low time plus the pulse width
+		printf0("pulse_width: %u", pulse_width);
 
 		tmr1_set_mode(TIMER_MODE_PWM_FAST_OCRnA_TOP);
 		tmr1_set_output_compare_A_value(top);

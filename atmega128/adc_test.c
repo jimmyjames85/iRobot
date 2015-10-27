@@ -175,6 +175,7 @@ int main(void)
 ///////////////////////////////////
 
 	list_t * measurements = lalloc();
+	/*
 	ladd(measurements, new_measurement(423, 300));
 	ladd(measurements, new_measurement(480, 240));
 	ladd(measurements, new_measurement(540, 210));
@@ -183,7 +184,56 @@ int main(void)
 	ladd(measurements, new_measurement(759, 140));
 	ladd(measurements, new_measurement(858, 120));
 	ladd(measurements, new_measurement(930, 110));
-	ladd(measurements, new_measurement(997, 100));
+	ladd(measurements, new_measurement(997, 100));*/
+
+
+	ladd(measurements, new_measurement(118, 360));
+ladd(measurements, new_measurement(146, 300));
+ladd(measurements, new_measurement(169, 245));
+ladd(measurements, new_measurement(199, 215));
+ladd(measurements, new_measurement(215, 195));
+ladd(measurements, new_measurement(224, 175));
+ladd(measurements, new_measurement(245, 165));
+ladd(measurements, new_measurement(250, 155));
+ladd(measurements, new_measurement(265, 145));
+ladd(measurements, new_measurement(279, 135));
+ladd(measurements, new_measurement(303, 125));
+ladd(measurements, new_measurement(327, 115));
+ladd(measurements, new_measurement(370, 105));
+ladd(measurements, new_measurement(394, 95));
+ladd(measurements, new_measurement(409, 85));
+ladd(measurements, new_measurement(457, 75));
+ladd(measurements, new_measurement(522, 65));
+ladd(measurements, new_measurement(562, 55));
+ladd(measurements, new_measurement(696, 45));
+ladd(measurements, new_measurement(912, 35));
+ladd(measurements, new_measurement(1019, 27));
+
+
+	/*
+118, 360
+146, 300
+169, 245
+199, 215
+215, 195
+224, 175
+245, 165
+250, 155
+265, 145
+279, 135
+303, 125
+327, 115
+370, 105
+394, 95
+409, 85
+457, 75
+522, 65
+562, 55
+696, 45
+912, 35
+1019, 27
+
+	 */
 
 	printf0("measurments->length = %u\r\n", measurements->length);
 
@@ -214,7 +264,6 @@ int main(void)
 				else
 				{
 					adc_dist_measurement_t * secondRef = lget(measurements, loc - 1);
-
 					double percentage = (reading.voltage - secondRef->voltage) / (ref->voltage - secondRef->voltage);
 					calculatedDist = ref->dist_mm + (secondRef->dist_mm - ref->dist_mm)*(reading.voltage - secondRef->voltage) / (ref->voltage - secondRef->voltage);
 				}

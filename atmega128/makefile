@@ -8,11 +8,11 @@ PORT_OPTIONS=-P $(PORT)
 
 
 ############## Atmega 128 ##################
-#MMCU=atmega128
-#PARTNO=m128
-#PROGRAMMER=usbasp
-#F_CPU=8000000UL
-#PORT_OPTIONS=
+MMCU=atmega128
+PARTNO=m128
+PROGRAMMER=usbasp
+F_CPU=8000000UL
+PORT_OPTIONS=
 #F_CPU=1000000UL
 #F_CPU=1843200UL
 
@@ -30,8 +30,8 @@ adc: adc.c
 pwm_test: pwm_test.c
 	avr-gcc $(COMPILE_OPTIONS) -c pwm_test.c -o pwm_test.o
 
-pwm_test_link: pwm_test usart util timer
-	avr-gcc -mmcu=$(MMCU)  usart.o pwm_test.o timer.o util.o -o pwm_test.a
+pwm_test_link: pwm_test usart util timer servo
+	avr-gcc -mmcu=$(MMCU)  usart.o servo.o pwm_test.o timer.o util.o -o pwm_test.a
 
 pwm_test_objCopy: pwm_test_link
 	avr-objcopy -O ihex -R .eeprom pwm_test.a pwm_test.hex
@@ -54,7 +54,7 @@ adc_test_upload: adc_test_objCopy
 	avrdude -v -p $(PARTNO) -c $(PROGRAMMER) $(PORT_OPTIONS) -U flash:w:adc_test.hex
 
 ################### adc test
-	
+
 usart: usart/usart.c
 	avr-gcc $(COMPILE_OPTIONS) -c usart/usart.c -o usart.o
 
@@ -66,6 +66,9 @@ bluetooth: blue_tooth_HC05.c
 
 movement: movement.c
 	avr-gcc $(COMPILE_OPTIONS) -c movement.c -o movement.o
+
+servo: servo.c
+	avr-gcc $(COMPILE_OPTIONS) -c servo.c -o servo.o
 
 hw: hw.c
 	avr-gcc $(COMPILE_OPTIONS) -c hw.c -o hw.o
@@ -106,7 +109,6 @@ ping_test_objCopy: ping_test_link
 ping_test_upload: ping_test_objCopy
 	avrdude -v -p $(PARTNO) -c $(PROGRAMMER) $(PORT_OPTIONS) -U flash:w:ping_test.hex
 
-	
 objCopy: link
 	avr-objcopy -O ihex -R .eeprom main.a main.hex
 
