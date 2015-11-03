@@ -8,11 +8,11 @@ PORT_OPTIONS=-P $(PORT)
 
 
 ############## Atmega 128 ##################
-MMCU=atmega128
-PARTNO=m128
-PROGRAMMER=usbasp
-F_CPU=8000000UL
-PORT_OPTIONS=
+#MMCU=atmega128
+#PARTNO=m128
+#PROGRAMMER=usbasp
+#F_CPU=8000000UL
+#PORT_OPTIONS=
 #F_CPU=1000000UL
 #F_CPU=1843200UL
 
@@ -24,6 +24,21 @@ all: objCopy
 
 adc: adc.c
 	avr-gcc $(COMPILE_OPTIONS) -c adc.c -o adc.o
+
+################### iRobot real
+
+iRobot: iRobot.c
+	avr-gcc $(COMPILE_OPTIONS) -c iRobot.c -o iRobot.o
+
+iRobot_link: iRobot ir_sensor usart ping servo util timer adc list
+	avr-gcc -mmcu=$(MMCU)  usart.o ping.o servo.o iRobot.o adc.o list.o ir_sensor.o timer.o util.o -o iRobot.a
+
+iRobot_objCopy: iRobot_link
+	avr-objcopy -O ihex -R .eeprom iRobot.a iRobot.hex
+
+iRobot_upload: iRobot_objCopy
+	avrdude -v -p $(PARTNO) -c $(PROGRAMMER) $(PORT_OPTIONS) -U flash:w:iRobot.hex
+
 
 ################### pwm test
 
@@ -96,6 +111,9 @@ timer: timer.c
 
 ping: ping.c
 	avr-gcc $(COMPILE_OPTIONS) -c ping.c -o ping.o
+
+ir_sensor: ir_sensor.c
+	avr-gcc $(COMPILE_OPTIONS) -c ir_sensor.c -o ir_sensor.o
 
 ping_test: ping_test.c
 	avr-gcc $(COMPILE_OPTIONS) -c ping_test.c -o ping_test.o

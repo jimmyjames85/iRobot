@@ -3,16 +3,16 @@
  *
  *  Created on: Oct 13, 2015
  *      Author: jim
+ *
+ *      Ping is setup to user timer1 !!!!
  */
 
-#ifndef ATMEGA128_PING_H_
-#define ATMEGA128_PING_H_
+#ifndef ___PING_H_
+#define ___PING_H_
+#include "timer.h"
 
-void initPing(timer_prescaler_t prescaler);
+void ping_init(timer_prescaler_t prescaler);
+unsigned long ping();
+unsigned ping_cm(timer_prescaler_t prescaler);
 
-
-void doPingLoop(void);//TODO remove
-
-
-
-#endif /* ATMEGA128_PING_H_ */
+#endif /* ___PING_H_*/

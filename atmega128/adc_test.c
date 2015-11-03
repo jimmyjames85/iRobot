@@ -147,10 +147,11 @@ list_t * test_callibrate_ir()
 int main(void)
 {
 
+	adc_set_vref(ADC_AVCC);
 #if ___atmega328p
 	init_USART0(9600, F_CPU);
 	//adc_set_vref(ADC_AREF);
-	adc_set_vref(ADC_INTERNAL_VREF);
+	//adc_set_vref(ADC_INTERNAL_VREF);
 #elif ___atmega128
 	init_USART0(BLUE_TOOTH_BAUD_RATE, F_CPU);
 //adc_set_vref(ADC_INTERNAL_VREF); //~2.5
@@ -175,7 +176,7 @@ int main(void)
 ///////////////////////////////////
 
 	list_t * measurements = lalloc();
-	/*
+
 	ladd(measurements, new_measurement(423, 300));
 	ladd(measurements, new_measurement(480, 240));
 	ladd(measurements, new_measurement(540, 210));
@@ -184,9 +185,9 @@ int main(void)
 	ladd(measurements, new_measurement(759, 140));
 	ladd(measurements, new_measurement(858, 120));
 	ladd(measurements, new_measurement(930, 110));
-	ladd(measurements, new_measurement(997, 100));*/
+	ladd(measurements, new_measurement(997, 100));
 
-
+/*
 	ladd(measurements, new_measurement(118, 360));
 ladd(measurements, new_measurement(146, 300));
 ladd(measurements, new_measurement(169, 245));
@@ -208,7 +209,7 @@ ladd(measurements, new_measurement(562, 55));
 ladd(measurements, new_measurement(696, 45));
 ladd(measurements, new_measurement(912, 35));
 ladd(measurements, new_measurement(1019, 27));
-
+*/
 
 	/*
 118, 360

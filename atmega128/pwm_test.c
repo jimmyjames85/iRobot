@@ -110,20 +110,13 @@ void timer3_mode_test()
 #endif
 }
 
-servo_print(servo_data_t * servo)
-{
-	printf0("       cur pulse width: %u\r\n",servo->cur_pulse_width);
-	//printf0("       max pulse width: %u\r\n",servo->max_pulse_width);
-	printf0("          ticks_per_ms: %u\r\n",servo->ticks_per_ms);
-	//printf0("pulse width single deg: %u\r\n",servo->pulse_width_single_degree);
-	//printf0("pulse width in degrees: %u\r\n",servo->cur_pulse_width/servo->pulse_width_single_degree);
-}
 void servo_test()
 {
 	servo_data_t rservo;//fake malloc
 	servo_data_t * servo = &rservo;
 	servo_init(servo);
 	servo_calibrate(servo);
+
 	while(1)
 	{
 		if(isAvailable0())
@@ -157,7 +150,7 @@ void servo_test()
 			}
 
 			printf0("You entered: %c\r\n",c);
-			servo_print(servo);
+			servo_print_servo(servo);
 
 
 		}

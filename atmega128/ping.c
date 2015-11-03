@@ -5,50 +5,15 @@
  *      Author: jim
  */
 
-//#include "ping.h"
-#include <util/delay.h>
 #include <avr/io.h>
-#include <avr/interrupt.h>
-#include "usart/usart.h"
-#include <stdlib.h>
+#include <util/delay.h>
+
+#include "ping.h"
 #include "timer.h"
-#include "util.h"
-#include "blue_tooth_HC05.h"
-
-volatile short timer1_input_capture_detected;
-volatile unsigned long capVal;
-volatile unsigned last_time;
-volatile unsigned current_time;
-volatile unsigned long start_pulse_time;
-volatile int haveReading;
-volatile unsigned int waiting_for_ping_response;
-volatile short timer1_overflow_detected;
-
-void initPing(timer_prescaler_t prescaler)
-{
-	tmr1_set_mode(0); //normal mode
-	tmr1_set_prescaler(prescaler);
-	tmr1_enable_input_capture_isr(1);
-	tmr1_enable_overflow_isr(1);
-}
-
-ISR(TIMER1_OVF_vect)
-{
-	if (waiting_for_ping_response)
-		timer1_overflow_detected = 1;
-}
-
-ISR( TIMER1_CAPT_vect)
-{
-	capVal = (long) tmr1_read_input_capture_count();
-	waiting_for_ping_response = 0; //WE GOT IT!!!!
-	timer1_input_capture_detected = 1;
-}
+//#include "usart/usart.h" //for ping loop bellow ....
 
 void ping_send_pulse(volatile unsigned long * startTime)
 {
-	tmr1_enable_input_capture_isr(0);
-
 #if ___atmega328p
 	DDRB |= _BV(0); // setup for output so we can trigger */
 	PORTB |= _BV(0);//send high */
@@ -63,96 +28,86 @@ void ping_send_pulse(volatile unsigned long * startTime)
 	DDRD &= ~_BV(4);// setup for input*/
 #endif
 	*startTime = tmr1_read_count();
-	tmr1_clear_capture_flag();
-	tmr1_enable_input_capture_isr(1);
+
 }
 
 
-
-int main(void)
+//TODO I don't think this is necessary as long as the timer is not stopped
+void ping_init(timer_prescaler_t prescaler)
 {
-	//uno input capture pin is PB0 (uno D8)
-	//128 input capture pin is PD4
+	tmr1_set_mode(TIMER_MODE_NORMAL_MAX_TOP); //normal mode
+	tmr1_set_prescaler(prescaler);//TODO insure prescaler is not timer off
+	tmr1_enable_input_capture_isr(0);
+	tmr1_enable_overflow_isr(0);
+}
 
-#if ___atmega328p
-	init_USART0(9600, F_CPU);
-#elif ___atmega128
-	init_USART0(BLUE_TOOTH_BAUD_RATE, F_CPU);
-#endif
-
-	timer_prescaler_t prescaler = ONE_64TH;
-	initPing(prescaler);
-	timer1_overflow_detected = 0;
-	waiting_for_ping_response = 0;
-
-	unsigned int oldTimerVal = 0;
-	unsigned int continous_pulse = 1;
+//uses tmr1
+/**
+ * uses timer1
+ * assumes timer_mode == 0, but I think as long as the timer is running it should be okay
+ * uses busy wait for both tmr1_capture_flag  and tmr1_overflow_flag
+ * ISRs should be disabled
+ *
+ * assumes ping is connected to:
+ *
+ * ___atmega328p PB0
+ * ___atemga128  PD4
+ *
+ * returns clock tick count for round trip ping
+ *
+ */
+unsigned long ping()
+{
+	//TODO temporarily disable ISRs ???
+	unsigned long start_pulse_time;
 	unsigned long overflows = 0;
 
-	//sei();
-
-	////////////////////////////////////////////////////////////
-	//TODO implement single pulse that blocks
-
 	ping_send_pulse(&start_pulse_time);
-	while(tmr1_read_capture_flag()==0)
-		printf0(".");
-	unsigned long end_time_cap = tmr1_read_count();
-	unsigned int delta = end_time_cap- start_pulse_time;
-	char rd[300];
-	ftoa(rd,ticks_to_secs(delta, prescaler, F_CPU));
-
-
-	printf0("\r\nCAPTURE!\r\n");
-	printf0("delta = %u, time = %s\r\n", delta, rd);
-	tmr1_clear_capture_flag();
-	if(tmr1_read_capture_flag())
-		printf0("clear did not work\r\n");
-
-	capVal = (long) tmr1_read_input_capture_count();
-	waiting_for_ping_response = 0; //WE GOT IT!!!!
-	timer1_input_capture_detected = 1;
-	////////////////////////////////////////////////////////////
-
-	sei();
-
-
-	while (1)
-	{
-		if (timer1_overflow_detected)
+	tmr1_clear_overflow_flag(); //We should clear the overflow flag in case it hasn't been done before
+	tmr1_clear_capture_flag();//This triggers the capture flag so we must clear it
+	while (tmr1_read_capture_flag() == 0) //then wait for it to be triggered by the ping sensor
+		if (tmr1_read_overflow_flag())
 		{
-			timer1_overflow_detected = 0;
+			tmr1_clear_overflow_flag(); //Keep track of overflows
 			overflows++;
-		}
-		if (timer1_input_capture_detected)
-		{
-			timer1_input_capture_detected = 0;
-			waiting_for_ping_response = 0;
+		};
+	tmr1_clear_capture_flag();
 
-			long delta = 0;
-			delta = ((overflows << 16) | capVal);
-			delta -= start_pulse_time;
 
-			double seconds = ticks_to_secs(delta, prescaler, F_CPU) - 0.00075; // ping sensor delay is 750 us
-			int cm = ((double) seconds * ((double) 34300 / 2));
-			double dinches = cm;
-			dinches /=2.54;
-			char d[300];
-			ftoa(d,dinches);
-			printf0("%s in , %d cm\r\n",d, cm);
-			//unsigned inches = (int)(dinches*10);
-			//printf0("%d cm (%d) \t %s\r\n", cm, overflows, d);
 
-			if (continous_pulse)
-			{
-				_delay_ms(200);
-				overflows = 0;
-				ping_send_pulse(&start_pulse_time);
-				start_pulse_time = tmr1_read_count();
-				waiting_for_ping_response = 1;
-			}
-		}
-	}
-
-	return 0; /* CODE SHOULD NEVER REACH HERE */
+	unsigned long end_capture_count = tmr1_read_input_capture_count();
+	unsigned long end_time_cap = (overflows << 16) | end_capture_count;
+	unsigned long delta = end_time_cap - start_pulse_time;
+	return delta;
 }
+
+unsigned ping_cm(timer_prescaler_t prescaler)
+{
+	//TODO write tmr1_get_current_prescaler()
+
+	unsigned long delta = ping();
+	double seconds = ticks_to_secs(delta, prescaler, F_CPU) - 0.00075; // ping sensor delay is 750 us
+	return (seconds * 34300 / 2);
+	//double dinches = cm / 2.54;
+}
+
+/*
+ void doPingLoop(void)
+ {
+ tmr1_set_mode(0); //normal mode
+ timer_prescaler_t prescaler = TIMER_ONE_1024TH;
+ tmr1_set_prescaler(prescaler);
+ tmr1_enable_input_capture_isr(0);
+ tmr1_enable_overflow_isr(0);
+ while (1)
+ {
+ unsigned long delta = ping();
+ double seconds = ticks_to_secs(delta, prescaler, F_CPU) - 0.00075; // ping sensor delay is 750 us
+ int cm = (seconds * 34300 / 2);
+ double dinches = cm / 2.54;
+ char d[300];
+ ftoa(d, dinches);
+ printf0("%s in , %d cm\r\n", d, cm);
+ }
+ }
+ */

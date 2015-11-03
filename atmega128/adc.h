@@ -24,10 +24,11 @@ typedef enum ADC_PRESCALER
 // @formatter:on
 } adc_prescaler_t;
 
-typedef enum ADC_AREF_SELECTION
+typedef enum ADC_VREF_SELECTION
 {
 	ADC_AREF, //0 0 AREF, Internal Vref turned off
 	ADC_AVCC, //0 1 AVCC with external capacitor at AREF pin
+	ADC_INTERNAL_VREF_RESERVED, //1 0 (ATMEGA 2560 Internal Voltage Reference 1.1V
 	ADC_INTERNAL_VREF //1 1 Internal Voltage Reference with external capacitor at AREF pin
 } adc_vref_t;
 
