@@ -14,6 +14,7 @@
 #include "adc.h"
 #include "util.h"
 #include "blue_tooth_HC05.h"
+#include "open_interface.h"
 #include "servo.h"
 #include "ping.h"
 
@@ -191,14 +192,19 @@ void doIrLoop()
 		printf0("%d volts \t\t calculatedDist= %u\r\n", voltage, calculatedDist);
 	}
 }
+
+servo_data_t * create_jim_servo()
+{
+	servo_data_t * servo = malloc(sizeof(servo_data_t));
+	servo_init(servo);
+	servo_calibrate(servo, 68, 285);
+	servo_set_position_deg(servo, 90);
+	return servo;
+}
+
 void doSweepLoop()
 {
-	servo_data_t rservo; //fake malloc
-	servo_data_t * servo = &rservo;
-
-	servo_init(servo);
-	servo_calibrate(servo, 8, 35);
-	servo_set_position_deg(servo, 90);
+	servo_data_t * servo = create_jim_servo();
 
 	list_t * lookup_table = create_jims_ping_sensor_lookup_table();
 
@@ -206,10 +212,22 @@ void doSweepLoop()
 
 	timer_prescaler_t prescaler = TIMER_ONE_1024TH;
 	ping_init(prescaler);
+	oi_t * oiSensor = malloc(sizeof(oi_t));
+	oi_tare_encoders(&(oiSensor->left_encoder), &(oiSensor->right_encoder));
+	int velocity = 0;
+	int radius = 0;
+	int leftWheelVelocity = 0;
+	int rightWheelVelocity = 0;
 
 	while (1)
 	{
 		char c = '\0';
+
+		while (oi_isAvailable())
+		{
+			sendChar0(oi_getChar());
+		}
+
 		if (isAvailable0())
 		{
 			c = getChar0();
@@ -236,24 +254,59 @@ void doSweepLoop()
 				case '-':
 					servo_decrement_degrees(servo, 4);
 				break;
+				case 'e':
+					leftWheelVelocity += 50;
+					oi_set_wheels(leftWheelVelocity, rightWheelVelocity);
+				break;
+				case 'd':
+					leftWheelVelocity -= 50;
+					oi_set_wheels(leftWheelVelocity, rightWheelVelocity);
+				break;
+
+				case 'r':
+					rightWheelVelocity += 50;
+					oi_set_wheels(leftWheelVelocity, rightWheelVelocity);
+				break;
+				case 'f':
+					rightWheelVelocity -= 50;
+					oi_set_wheels(leftWheelVelocity, rightWheelVelocity);
+				break;
+				case 'F':
+					oi_full_mode();
+					printf0("Full Mode \r\n");
+				break;
+				case ' ':
+					radius = 0;
+					velocity = 0;
+					rightWheelVelocity = 0;
+					leftWheelVelocity = 0;
+					oi_set_wheels(0, 0);
+				break;
+				case 'b':
+					rightWheelVelocity = -50;
+					leftWheelVelocity = -50;
+					oi_set_wheels(leftWheelVelocity, rightWheelVelocity);
+					_delay_ms(4000); //
+					rightWheelVelocity = 0;
+					leftWheelVelocity = 0;
+					oi_set_wheels(leftWheelVelocity, rightWheelVelocity);
+				break;
 				default:
 				break;
 			}
 
-			_delay_ms(200);//Wait for servo to move before reading
+			//_delay_ms(200); //Wait for servo to move before reading
 			unsigned voltage = ir_read_voltage_avg(5);
 			unsigned calculatedDist = ir_lookup_distance(lookup_table, voltage);
 
-			_delay_ms(20);
 			unsigned cm = ping_cm(prescaler);
-			double ir_cm = calculatedDist*0.254;
-			char buff[20];
+			double ir_cm = calculatedDist * 0.254;
+			char buff[200];
 			ftoa(buff, ir_cm);
 			unsigned curDeg = servo_calculate_position_deg(servo);
 			//printf0("%d volts \t\t calculatedDist= %u \r\n", voltage, calculatedDist);
-			printf0("%u \t%d p_cm\t  %s ir_cm\r\n",curDeg, cm, buff);
+			printf0("%u \t%d p_cm\t  %s ir_cm \t pw=%u\r\n", curDeg, cm, buff, servo->cur_pulse_width);
 		}
-
 	}
 }
 
@@ -261,17 +314,33 @@ int main(void)
 {
 #if ___atmega328p
 	init_USART0(9600, F_CPU);
+
 //	init_USART0(BLUE_TOOTH_BAUD_RATE, F_CPU);
 #elif ___atmega128
 	init_USART0(BLUE_TOOTH_BAUD_RATE, F_CPU);
+
 #endif
 
+	init_USART1(OI_ALTERNATE_BAUD_RATE, F_CPU);
+	_delay_ms(333);
+	oi_switch_baud_rate();
+	_delay_ms(333);
+	oi_init();
+	oi_full_mode();
+	int i;
+	int val;
+	for (i = 0; i < 10; i++)
+	{
+		val = i % 2;
+		oi_set_leds(val, val, val, val, 0xFF * val, 0xFF);
+		_delay_ms(50);
+	}
+	oi_init();
+
 	//input_capture_test();
+	printf0("Hello world!\r\n");
 	doSweepLoop();
 	doPingLoop();
-
 	doIrLoop();
-
 	servo_test();
-
 }

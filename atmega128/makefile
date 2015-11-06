@@ -6,18 +6,18 @@ F_CPU=16000000UL
 PORT=/dev/ttyACM0
 PORT_OPTIONS=-P $(PORT)
 
-
 ############## Atmega 128 ##################
-#MMCU=atmega128
-#PARTNO=m128
-#PROGRAMMER=usbasp
-#F_CPU=8000000UL
-#PORT_OPTIONS=
-#F_CPU=1000000UL
-#F_CPU=1843200UL
+MMCU=atmega128
+PARTNO=m128
+PROGRAMMER=usbasp
+F_CPU=8000000UL
+PORT_OPTIONS=
+
+############################################################################
 
 COMPILE_OPTIONS=-Os -DF_CPU=$(F_CPU) -D___$(MMCU)=1 -mmcu=$(MMCU)  
 
+############################################################################
 .PHONY: adc adc_test ping_test_link ping_test_objCopy ping_test_upload clock movement bluetooth open_interface atmega128 main timer link util objCopy upload all clean usart freshUpload ping
 
 all: objCopy
@@ -30,8 +30,8 @@ adc: adc.c
 iRobot: iRobot.c
 	avr-gcc $(COMPILE_OPTIONS) -c iRobot.c -o iRobot.o
 
-iRobot_link: iRobot ir_sensor usart ping servo util timer adc list
-	avr-gcc -mmcu=$(MMCU)  usart.o ping.o servo.o iRobot.o adc.o list.o ir_sensor.o timer.o util.o -o iRobot.a
+iRobot_link: iRobot ir_sensor usart ping servo util timer adc list open_interface
+	avr-gcc -mmcu=$(MMCU) open_interface.o usart.o ping.o servo.o iRobot.o adc.o list.o ir_sensor.o timer.o util.o -o iRobot.a
 
 iRobot_objCopy: iRobot_link
 	avr-objcopy -O ihex -R .eeprom iRobot.a iRobot.hex
@@ -92,7 +92,7 @@ main: main.c
 	avr-gcc $(COMPILE_OPTIONS) -c main.c -o main.o
 
 open_interface: open_interface.c
-	avr-gcc $(COMPILE_OPTIONS) -c open_interface.c -o oi.o
+	avr-gcc $(COMPILE_OPTIONS) -c open_interface.c -o open_interface.o
 
 atmega128: atmega128.c
 	avr-gcc $(COMPILE_OPTIONS) -c atmega128.c -o atmega128.o
