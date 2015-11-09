@@ -11,8 +11,8 @@
 #define BLUE_TOOTH_BAUD_RATE 38400
 
 uint8_t bt_isAvailable();
-uint8_t bt_getChar();
-void bt_sendChar(unsigned char data);
+uint8_t bgetChar();
+void bsendChar(unsigned char data);
 void bprintf(const char * fmt, ...);
 
 #endif /* ATMEGA128_BLUE_TOOTH_HC05_H_ */

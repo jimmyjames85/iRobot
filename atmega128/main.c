@@ -45,12 +45,12 @@ void commandCenterLoop_main()
 		char c;
 		while (oi_isAvailable())
 		{
-			bt_sendChar(oi_getChar());
+			bsendChar(oi_getChar());
 		}
 
 		if (bt_isAvailable())
 		{
-			c = bt_getChar();
+			c = bgetChar();
 			bprintf("\r\n(0x%02X) You pressed: %c\r\n", c, c);
 
 			if (c == 'B')

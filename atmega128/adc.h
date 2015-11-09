@@ -41,6 +41,7 @@ void adc_clear_conversion_complete_flag();
 unsigned char adc_read_conversion_complete_flag();
 void adc_enable_conversion_complete_isr(char enable_bool);
 unsigned char adc_is_enabled_read_conversion_complete_isr();
+unsigned char adc_is_enabled_free_running_mode();
 void adc_enable_free_running_mode(char enable_bool);
 void adc_enable_left_adjust(char enable_bool);
 unsigned int adc_read_data();

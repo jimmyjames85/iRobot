@@ -30,8 +30,8 @@ adc: adc.c
 iRobot: iRobot.c
 	avr-gcc $(COMPILE_OPTIONS) -c iRobot.c -o iRobot.o
 
-iRobot_link: iRobot ir_sensor usart ping servo util timer adc list open_interface
-	avr-gcc -mmcu=$(MMCU) open_interface.o usart.o ping.o servo.o iRobot.o adc.o list.o ir_sensor.o timer.o util.o -o iRobot.a
+iRobot_link: iRobot ir_sensor usart ping servo util timer adc list open_interface bluetooth
+	avr-gcc -mmcu=$(MMCU) open_interface.o usart.o ping.o servo.o iRobot.o adc.o list.o bluetooth.o ir_sensor.o timer.o util.o -o iRobot.a
 
 iRobot_objCopy: iRobot_link
 	avr-objcopy -O ihex -R .eeprom iRobot.a iRobot.hex
@@ -77,7 +77,7 @@ clock: clock.c
 	avr-gcc $(COMPILE_OPTIONS) -c clock.c -o clock.o
 
 bluetooth: blue_tooth_HC05.c
-	avr-gcc $(COMPILE_OPTIONS) -c blue_tooth_HC05.c -o bt.o
+	avr-gcc $(COMPILE_OPTIONS) -c blue_tooth_HC05.c -o bluetooth.o
 
 movement: movement.c
 	avr-gcc $(COMPILE_OPTIONS) -c movement.c -o movement.o
@@ -98,7 +98,7 @@ atmega128: atmega128.c
 	avr-gcc $(COMPILE_OPTIONS) -c atmega128.c -o atmega128.o
 
 link: main atmega128 usart bluetooth open_interface hw movement clock util ping timer
-	avr-gcc -mmcu=$(MMCU) main.o hw.o oi.o bt.o usart.o movement.o atmega128.o ping.o timer.o util.o clock.o -o main.a
+	avr-gcc -mmcu=$(MMCU) main.o hw.o oi.o bluetooth.o usart.o movement.o atmega128.o ping.o timer.o util.o clock.o -o main.a
 
 util: util.c
 	avr-gcc $(COMPILE_OPTIONS) -c util.c -o util.o

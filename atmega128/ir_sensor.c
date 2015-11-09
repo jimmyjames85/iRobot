@@ -100,7 +100,7 @@ list_t * ir_calibrate_lookup_table()
 			printf0("Enter Reading in mm: \r\n");
 			unsigned long dist = (unsigned long) read_long0();
 			printf0("You entered: %d mm\r\n", dist);
-			ir_measurement_t * measure = ir_new_measurement(reading, dist);
+			ir_measurement_t * measure = new_ir_measurement(reading, dist);
 			ladd(measurements, measure);
 		}
 		if (choice == 'q' || choice == 'Q')
@@ -111,7 +111,7 @@ list_t * ir_calibrate_lookup_table()
 	return measurements;
 }
 
-ir_measurement_t * ir_new_measurement(unsigned int voltage, unsigned int dist_mm)
+ir_measurement_t * new_ir_measurement(unsigned int voltage, unsigned int dist_mm)
 {
 	ir_measurement_t * ret;
 	ret = (ir_measurement_t *) malloc(sizeof(ir_measurement_t) * 1);
@@ -143,11 +143,21 @@ unsigned ir_read_voltage_avg(unsigned char n)
 
 unsigned ir_read_voltage()
 {
+	if(adc_is_enabled_free_running_mode())
+		return adc_read_data();
+
 	adc_start_conversion();
 	while (adc_read_conversion_complete_flag() == 0)
 		; //wait for conversion to complete
 	adc_clear_conversion_complete_flag();
 	return adc_read_data();
+}
+
+void ir_enable_continous_mode()
+{
+	//adc_enable_conversion_complete_isr(1);
+	adc_enable_free_running_mode(1);
+	adc_start_conversion();
 }
 
 /**

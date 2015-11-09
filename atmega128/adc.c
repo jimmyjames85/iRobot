@@ -18,7 +18,7 @@ void adc_set_vref(adc_vref_t vref_setting)
 			ADMUX = (ADMUX & ~(_BV(REFS1))) | _BV(REFS0);
 		break;
 		case ADC_INTERNAL_VREF_RESERVED: //1 0 (ATMEGA 2560 Internal Voltage Reference 1.1V
-			ADMUX =  _BV(REFS1) | (ADMUX & ~(_BV(REFS0)));
+			ADMUX = _BV(REFS1) | (ADMUX & ~(_BV(REFS0)));
 		break;
 		case ADC_INTERNAL_VREF:
 			ADMUX |= _BV(REFS1) | _BV(REFS0);
@@ -83,6 +83,29 @@ unsigned char adc_is_enabled_read_conversion_complete_isr()
 	return ADCSRA & _BV(ADIE);
 }
 
+unsigned char adc_is_enabled_free_running_mode()
+{
+#if ___atmega2560 // meag adk
+	char c = ADCSRA & _BV(ADATE);	//auto trigger enabled
+
+	if (0 == (ADCSRB & ~(_BV(7) | _BV(ADTS2) | _BV(ADTS1) | _BV(ADTS0))))
+		return c;
+	return 0;
+
+#elif ___atmega328p 	//uno	pg264
+
+	char c = ADCSRA & _BV(ADATE);	//auto trigger  enabled
+	if (0 == (ADCSRB & ~(_BV(7) | _BV(5) | _BV(4) | _BV(3) | _BV(ADTS2) | _BV(ADTS1) | _BV(ADTS0))))
+		return c;
+
+	return 0;
+
+#elif ___atmega128	//pg 244
+	return ADCSRA & _BV(ADFR);
+#endif
+	return 0;
+}
+
 void adc_enable_free_running_mode(char enable_bool)
 {
 #if ___atmega2560 // meag adk
@@ -96,14 +119,12 @@ void adc_enable_free_running_mode(char enable_bool)
 		 * must be written to zero when ADCSRB is written.
 		 */
 
-	     //ADTS2:0 = 0b000   ==>  Free running mode
-
-		ADCSRB &= ~(_BV(7) | _BV(ADTS2) | _BV(ADTS1) | _BV(ADTS0)); //set auto trigger to free running mode
+		//ADTS2:0 = 0b000   ==>  Free running mode
+		ADCSRB &= ~(_BV(7) | _BV(ADTS2) | _BV(ADTS1) | _BV(ADTS0));//set auto trigger to free running mode
 		ADCSRA |= _BV(ADATE);//enable auto trigger
 	}
 	else
 	ADCSRA &= ~_BV(ADATE); //disable auto trigger
-
 
 #elif ___atmega328p 	//uno	pg264
 	if(enable_bool)
@@ -114,9 +135,8 @@ void adc_enable_free_running_mode(char enable_bool)
 		 * To ensure compatibility with future devices, these bist [sic]
 		 * must be written to zero when ADCSRB is written.
 		 */
-	     //ADTS2:0 = 0b000   ==>  Free running mode
-
-		ADCSRB &= ~(_BV(7) | _BV(5) | _BV(4) | _BV(3) | _BV(ADTS2) | _BV(ADTS1) | _BV(ADTS0)); //set auto trigger to free running mode
+		//ADTS2:0 = 0b000   ==>  Free running mode
+		ADCSRB &= ~(_BV(7) | _BV(5) | _BV(4) | _BV(3) | _BV(ADTS2) | _BV(ADTS1) | _BV(ADTS0));//set auto trigger to free running mode
 		ADCSRA |= _BV(ADATE);//enable auto trigger
 	}
 	else
