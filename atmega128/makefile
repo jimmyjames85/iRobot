@@ -22,7 +22,7 @@ COMPILE_OPTIONS=-Os -DF_CPU=$(F_CPU) -D___$(MMCU)=1 -mmcu=$(MMCU)
 ############################################################################
 .PHONY: adc adc_test ping_test_link ping_test_objCopy ping_test_upload clock movement bluetooth open_interface atmega128 main timer link util objCopy upload all clean usart freshUpload ping
 
-all: iRobot_link
+all: iRobot_objCopy
 
 adc: adc.c
 	$(CC) $(COMPILE_OPTIONS) -c adc.c -o adc.o
