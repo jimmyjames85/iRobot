@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "atmega128.h"
-#include "usart/usart.h"
+#include "usart.h"
 #include "open_interface.h"
 #include "blue_tooth_HC05.h"
 #include "movement.h"

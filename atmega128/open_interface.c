@@ -1,5 +1,5 @@
 #include "open_interface.h"
-#include "usart/usart.h"
+#include "usart.h"
 #include "blue_tooth_HC05.h"
 #include <avr/io.h>
 #include <util/delay.h>

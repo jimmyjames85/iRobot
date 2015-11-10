@@ -8,7 +8,7 @@
 #include "timer.h"
 #include <avr/interrupt.h>
 #include <avr/io.h>
-#include "usart/usart.h"
+#include "usart.h"
 double ticks_to_secs(unsigned long ticks, timer_prescaler_t clock_prescaler, unsigned long fcpu)
 {
 	long ttps;	//timerTicksPerSec

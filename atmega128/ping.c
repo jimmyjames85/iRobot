@@ -10,7 +10,7 @@
 
 #include "ping.h"
 #include "timer.h"
-//#include "usart/usart.h" //for ping loop bellow ....
+//#include "usart.h" //for ping loop bellow ....
 void ping_enable_isrs(unsigned char enable_bool)
 {
 

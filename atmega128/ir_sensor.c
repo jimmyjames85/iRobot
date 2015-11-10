@@ -7,11 +7,12 @@
 
 #include <util/delay.h>
 #include <stdlib.h> /* malloc */
-#include "usart/usart.h"
+#include "usart.h"
 #include "ir_sensor.h"
 #include "adc.h"
 #include "list.h"
 #include "util.h" //TODO <----------------------- REMOVE ---------------
+
 //blocks until data and reads until input is not an integer
 //private
 unsigned long read_long0()

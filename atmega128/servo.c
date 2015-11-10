@@ -7,7 +7,7 @@
 #include <avr/io.h>
 #include "servo.h"
 #include "timer.h"
-#include "usart/usart.h" //TODO this is used for servo_print_servo.... change it to toString???
+#include "usart.h" //TODO this is used for servo_print_servo.... change it to toString???
 
 // private
 void servo_set_pulse_width(servo_data_t * servo, unsigned int pulse_width)

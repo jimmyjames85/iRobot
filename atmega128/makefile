@@ -70,8 +70,8 @@ adc_test_upload: adc_test_objCopy
 
 ################### adc test
 
-usart: usart/usart.c
-	avr-gcc $(COMPILE_OPTIONS) -c usart/usart.c -o usart.o
+usart: usart.c
+	avr-gcc $(COMPILE_OPTIONS) -c usart.c -o usart.o
 
 clock: clock.c
 	avr-gcc $(COMPILE_OPTIONS) -c clock.c -o clock.o

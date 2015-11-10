@@ -7,6 +7,7 @@
 
 #include <avr/io.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include "usart.h"
 
 void usart0_init(unsigned long UBRR_value, unsigned char frame_size, unsigned char stop_bits, usart_parity_mode_t parity_mode, unsigned char enable_U2X)

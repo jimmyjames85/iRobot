@@ -9,7 +9,7 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 
-#include "usart/usart.h"
+#include "usart.h"
 #include "timer.h"
 #include "list.h"
 #include "adc.h"
@@ -418,8 +418,9 @@ void doSweepLoop()
 	ir_enable_continous_mode();
 	sendPing();
 
+	printf0("creating stored ir sensor lookup table...\r\n");
 	list_t * lookup_table = create_jims_ir_sensor_lookup_table();
-
+	printf0("done...\r\n");
 	while (1)
 	{
 		char c = '\0';
