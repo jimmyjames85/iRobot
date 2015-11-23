@@ -1,8 +1,8 @@
-#include "open_interface.h"
-#include "usart.h"
-#include "blue_tooth_HC05.h"
 #include <avr/io.h>
 #include <util/delay.h>
+
+#include "open_interface.h"
+#include "usart.h"
 
 void oi_load_sensor_data(oi_t * sensor)
 {

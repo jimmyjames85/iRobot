@@ -14,7 +14,6 @@
 #include "list.h"
 #include "adc.h"
 #include "util.h"
-#include "blue_tooth_HC05.h"
 #include "open_interface.h"
 #include "servo.h"
 #include "ping.h"
@@ -187,15 +186,15 @@ list_t * create_ir_lookup_table_from_ping(servo_data_t * servo, timer_prescaler_
 	oi_set_wheels(0, 0);
 	servo_set_position_deg(servo, 90);
 
-	bprintf("Put roomba in front of flat surface like a wall. Press 'c' when ready...\r\n");
-	while (bgetChar() != 'c')
-		bprintf("Put roomba in front of flat surface like a wall. Press 'c' when ready...\r\n");
+	printf0("Put roomba in front of flat surface like a wall. Press 'c' when ready...\r\n");
+	while (getChar0() != 'c')
+		printf0("Put roomba in front of flat surface like a wall. Press 'c' when ready...\r\n");
 
 	unsigned voltage = ir_read_voltage_avg(avg);
-	bprintf("start: %u\r\n", voltage);
+	printf0("start: %u\r\n", voltage);
 	while (voltage != maxVoltage)
 	{
-		bprintf("%u\r\n", voltage);
+		printf0("%u\r\n", voltage);
 		oi_set_wheels(-speed, -speed);
 		_delay_ms(2 * delay_for_5_mm); //1 cm
 		oi_set_wheels(0, 0);
@@ -207,7 +206,7 @@ list_t * create_ir_lookup_table_from_ping(servo_data_t * servo, timer_prescaler_
 
 	while (voltage == maxVoltage)
 	{
-		bprintf("[%u v], %u p_mm \r\n", voltage, peakVoltage_distance_mm);
+		printf0("[%u v], %u p_mm \r\n", voltage, peakVoltage_distance_mm);
 		oi_set_wheels(-speed, -speed);
 		_delay_ms(delay_for_5_mm * 2);
 		oi_set_wheels(0, 0);
@@ -228,10 +227,10 @@ list_t * create_ir_lookup_table_from_ping(servo_data_t * servo, timer_prescaler_
 		_delay_ms(100);
 		unsigned mm = ping_mm_busy_wait(prescaler);
 
-		bprintf("reading [%u v], %u mm   >?     %u oldMm \r\n", voltage, mm, oldMm);
+		printf0("reading [%u v], %u mm   >?     %u oldMm \r\n", voltage, mm, oldMm);
 		while (mm <= oldMm)
 		{
-			bprintf("Non increasing ping value: [OLD: %u] [NEW: %u]\r\n", oldMm, mm);
+			printf0("Non increasing ping value: [OLD: %u] [NEW: %u]\r\n", oldMm, mm);
 
 			_delay_ms(100);
 			mm = ping_mm_busy_wait(prescaler);
@@ -240,7 +239,7 @@ list_t * create_ir_lookup_table_from_ping(servo_data_t * servo, timer_prescaler_
 			oi_set_wheels(0, 0);
 		}
 
-		bprintf(" adding [%u v], %u mm \r\n", voltage, mm);
+		printf0(" adding [%u v], %u mm \r\n", voltage, mm);
 		ladd(ret, (void*) new_ir_measurement(voltage, mm));
 		oi_set_wheels(-speed, -speed);
 		_delay_ms(delay_for_5_mm * 2); //1cm
@@ -248,9 +247,9 @@ list_t * create_ir_lookup_table_from_ping(servo_data_t * servo, timer_prescaler_
 		voltage = ir_read_voltage_avg(avg);
 		oldMm = mm;
 	}
-	bprintf("sorting...\r\n");
+	printf0("sorting...\r\n");
 	lmergesort(ret, 0, ret->length - 1, (int (*)(const void*, const void*)) compare_ir_measurements);
-	bprintf("done\r\n");
+	printf0("done\r\n");
 	return ret;
 }
 
@@ -354,10 +353,10 @@ void handleInput(servo_data_t * servo, unsigned int * leftWheelVelocity, unsigne
 			break;
 			case 's':
 				oi_safe_mode();
-				bprintf("safe mode\r\n");
+				printf0("safe mode\r\n");
 			break;
 			case 'R':
-				bprintf("reset\r\n");
+				printf0("reset\r\n");
 				oi_reset();
 			break;
 			default:
@@ -477,7 +476,7 @@ int main(void)
 	init_USART0(9600, F_CPU);
 
 #elif ___atmega128
-	init_USART0(BLUE_TOOTH_BAUD_RATE, F_CPU);
+	init_USART0(38400, F_CPU);
 
 #endif
 
