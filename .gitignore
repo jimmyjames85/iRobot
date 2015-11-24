@@ -1,2 +1,6 @@
+*.a
+*.o
+CMakeLists.txt
+.idea
 .cproject
 .project
