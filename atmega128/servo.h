@@ -18,11 +18,9 @@ typedef struct SERVO_DATA
 		unsigned char desired_deg; // 0 to 180
 } servo_data_t;
 
-//void servo_calibrate(servo_data_t * servo);
 void servo_init(servo_data_t * servo);
 void servo_calibrate(servo_data_t * servo, unsigned cal_0_degrees, unsigned cal_180_degrees);
 void servo_set_position_deg(servo_data_t * servo, int degrees);
-unsigned int servo_get_position_deg(servo_data_t * servo);
 double servo_calculate_position_deg(servo_data_t * servo);
 void servo_increment_degrees(servo_data_t * servo, unsigned int amt);
 void servo_decrement_degrees(servo_data_t * servo, unsigned int amt);

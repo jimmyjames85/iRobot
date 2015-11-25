@@ -11,7 +11,7 @@
 typedef enum ADC_PRESCALER
 {
 
-	// @formatter:off
+    // @formatter:off
 
 	ADC_ONE_HALF = 0x00, //note ONE_HALF and ONE_2NDTH are the same prescaler
 	ADC_ONE_2NDTH = 0x01,
@@ -28,7 +28,7 @@ typedef enum ADC_VREF_SELECTION
 {
 	ADC_AREF, //0 0 AREF, Internal Vref turned off
 	ADC_AVCC, //0 1 AVCC with external capacitor at AREF pin
-	ADC_INTERNAL_VREF_RESERVED, //1 0 (ATMEGA 2560 Internal Voltage Reference 1.1V
+	ADC_INTERNAL_VREF_RESERVED, //1 0
 	ADC_INTERNAL_VREF //1 1 Internal Voltage Reference with external capacitor at AREF pin
 } adc_vref_t;
 
@@ -45,8 +45,5 @@ unsigned char adc_is_enabled_free_running_mode();
 void adc_enable_free_running_mode(char enable_bool);
 void adc_enable_left_adjust(char enable_bool);
 unsigned int adc_read_data();
-
-//returns -1 if out of range TODO
-//adc_prescaler_t calculate_prescaler(unsigned long f_cpu);
 
 #endif /* ATMEGA128_ADC_H_ */

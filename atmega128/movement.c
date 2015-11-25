@@ -47,17 +47,14 @@ void move_forward_cm(oi_t *sensor, int centimeters)
 void turn_CW(oi_t *sensor, int degrees)
 {
 
-
 	uint8_t speed = 100;
+    int16_t one_full_rotation_distance_mm=735;
 
 	if(degrees<=0)
 	{
 		speed *= -1;
 		degrees *= -1;
 	}
-
-	int16_t one_full_rotation_distance_mm=735;//735;
-
 
 	oi_set_wheels(0, 0);
 	oi_tare_encoders(&(sensor->left_encoder), &(sensor->right_encoder));
@@ -84,7 +81,6 @@ void turn_CW(oi_t *sensor, int degrees)
 			oi_set_wheels(speed/2,-speed/2);
 		//else if(target_rotation_mm/ avg <= 4)
 			//oi_set_wheels((speed/4)*3,(-speed/4)*3);
-
 	}
 
 	oi_set_wheels(0, 0);

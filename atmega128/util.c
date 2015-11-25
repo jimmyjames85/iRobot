@@ -7,7 +7,6 @@
 #include <stdlib.h> /* malloc */
 #include <stdio.h>
 #include "util.h"
-#include "list.h"
 
 void ftoa(char * str, float val)
 {

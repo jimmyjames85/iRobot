@@ -22,7 +22,7 @@ COMPILE_OPTIONS=-Os -DF_CPU=$(F_CPU) -D___$(MMCU)=1 -mmcu=$(MMCU)
 ############################################################################
 .PHONY: link objCopy upload clean freshUpload
 
-OBJECTS= adc.o open_interface.o usart.o servo.o movement.o util.o list.o timer.o ping.o ir_sensor.o 
+OBJECTS= main.o adc.o open_interface.o usart.o servo.o movement.o util.o list.o timer.o ping.o ir_sensor.o 
 
 all: link
 
@@ -36,7 +36,7 @@ objCopy: link
 	$(OBJCOPY) -O ihex -R .eeprom main.a main.hex
 
 upload: objCopy
-	avrdude -v -p $(PARTNO) -c $(PROGRAMMER) -U flash:w:main.hex
+	avrdude -v -p $(PARTNO) -c $(PROGRAMMER) -b 19200 -U flash:w:main.hex
 ##	avrdude -v -p $(PARTNO) -c $(PROGRAMMER) -P $(PORT) -U flash:w:blink.hex
 
 freshUpload: clean upload

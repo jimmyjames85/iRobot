@@ -10,7 +10,7 @@
 
 typedef enum TIMER_PRESCALER
 {
-	// @formatter:off
+    // @formatter:off
 	TIMER_STOPPED = 0x0,
 	TIMER_NO_PRESCALING = 0x01,
 	TIMER_ONE_8TH = 0x02,
@@ -22,8 +22,8 @@ typedef enum TIMER_PRESCALER
 
 typedef enum TIMER_MODE
 {
-	//uno see table 15-4 pg 136
-	// @formatter:off
+    //uno see table 15-4 pg 136
+    // @formatter:off
 	TIMER_MODE_NORMAL_MAX_TOP = 0,
 	TIMER_MODE_PWM_PHASE_CORRECT_8_BIT_TOP = 1,
 	TIMER_MODE_PWM_PHASE_CORRECT_9_BIT_TOP = 2,
@@ -48,7 +48,7 @@ typedef enum TIMER_MODE
 
 typedef enum TIMER_COMPARE_OUTPUT_MODE
 {
-	// @formatter:off
+    // @formatter:off
 	TIMER_COMPARE_OUTPUT_DISCONNECTED = 0,
 	TIMER_COMPARE_OUTPUT_TOGGLE = 1,
 	TIMER_COMPARE_OUTPUT_SET_LOW = 2,
@@ -56,101 +56,120 @@ typedef enum TIMER_COMPARE_OUTPUT_MODE
 
 	// @formatter:on
 } timer_compare_output_mode_t;
+
 /**
  * fcpu  - base frequency
  * clock_prescaler -
  */
 double ticks_to_secs(unsigned long ticks, timer_prescaler_t clock_prescaler, unsigned long fcpu);
 
+/*
 void tmr0_set_mode(timer_mode_t);
 void tmr0_set_prescaler(timer_prescaler_t);
 void tmr0_clear_count(void);
 void tmr0_stop(void);
 void tmr0_start(timer_prescaler_t);
-//NOT AVAILABLE (for uno) void tmr0_set_input_capture_edge(char true_is_rising_edge);
-//NOT AVAILABLE (for uno) void tmr0_clear_capture_flag(void);
-//NOT AVAILABLE (for uno) void tmr0_enable_input_capture_isr(char enable_bool);
 void tmr0_enable_overflow_isr(char enable_bool);
 void tmr0_enable_output_compare_A_match_isr(char enable_bool);
 void tmr0_enable_output_compare_B_match_isr(char enable_bool);
-//NOT AVAILABLE (for uno) void tmr0_enable_output_compare_C_match_isr(char enable_bool);
 void tmr0_set_output_compare_A_value(unsigned char compare_val);
 void tmr0_set_output_compare_B_value(unsigned char compare_val);
-//NOT AVAILABLE (for uno) void tmr1_set_output_compare_C_value(unsigned char compare_val);
 void tmr0_set_output_compare_A_mode(timer_compare_output_mode_t);
 void tmr0_set_output_compare_B_mode(timer_compare_output_mode_t);
-//NOT AVAILABLE (for uno) void tmr0_set_output_compare_C_mode(timer_compare_output_mode_t);
-//NOT AVAILABLE (for uno) unsigned char tmr0_read_capture_flag(void);
 unsigned char tmr0_read_count(void);
-//NOT AVAILABLE (for uno) unsigned tmr0_read_input_capture_count(void);
 void tmr0_clear_overflow_flag();
 unsigned char tmr0_read_overflow_flag();
-
-
-
-
-
+*/
 
 
 void tmr1_set_mode(timer_mode_t);
+
 void tmr1_set_prescaler(timer_prescaler_t);
+
 void tmr1_set_input_capture_edge(char true_is_rising_edge);
+
 void tmr1_clear_count(void);
+
 void tmr1_clear_capture_flag(void);
+
 void tmr1_stop(void);
+
 void tmr1_start(timer_prescaler_t);
 
 void tmr1_enable_input_capture_isr(char enable_bool);
+
 void tmr1_enable_overflow_isr(char enable_bool);
 
 void tmr1_enable_output_compare_A_match_isr(char enable_bool);
+
 void tmr1_enable_output_compare_B_match_isr(char enable_bool);
+
 void tmr1_enable_output_compare_C_match_isr(char enable_bool);
 
 void tmr1_set_output_compare_A_value(unsigned int compare_val);
+
 void tmr1_set_output_compare_B_value(unsigned int compare_val);
+
 void tmr1_set_output_compare_C_value(unsigned int compare_val);
 
 void tmr1_set_output_compare_A_mode(timer_compare_output_mode_t);
+
 void tmr1_set_output_compare_B_mode(timer_compare_output_mode_t);
+
 void tmr1_set_output_compare_C_mode(timer_compare_output_mode_t);
 
-
 unsigned char tmr1_read_capture_flag(void);
+
 unsigned tmr1_read_count(void);
+
 unsigned tmr1_read_input_capture_count(void);
 
-
 void tmr1_clear_overflow_flag();
+
 unsigned char tmr1_read_overflow_flag();
 
 
 
 void tmr3_set_mode(timer_mode_t);
+
 void tmr3_set_prescaler(timer_prescaler_t);
+
 void tmr3_set_input_capture_edge(char true_is_rising_edge);
+
 void tmr3_clear_count(void);
+
 void tmr3_clear_capture_flag(void);
+
 void tmr3_stop(void);
+
 void tmr3_start(timer_prescaler_t);
 
 void tmr3_enable_input_capture_isr(char enable_bool);
+
 void tmr3_enable_overflow_isr(char enable_bool);
 
 void tmr3_enable_output_compare_A_match_isr(char enable_bool);
+
 void tmr3_enable_output_compare_B_match_isr(char enable_bool);
+
 void tmr3_enable_output_compare_C_match_isr(char enable_bool);
 
 void tmr3_set_output_compare_A_value(unsigned int compare_val);
+
 void tmr3_set_output_compare_B_value(unsigned int compare_val);
+
 void tmr3_set_output_compare_C_value(unsigned int compare_val);
 
 void tmr3_set_output_compare_A_mode(timer_compare_output_mode_t);
+
 void tmr3_set_output_compare_B_mode(timer_compare_output_mode_t);
+
 void tmr3_set_output_compare_C_mode(timer_compare_output_mode_t);
 
 unsigned char tmr3_read_capture_flag(void);
+
 unsigned tmr3_read_count(void);
+
 unsigned tmr3_read_input_capture_count(void);
 
 #endif /* TIMER_H_ */
