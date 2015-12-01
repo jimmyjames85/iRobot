@@ -17,7 +17,7 @@ typedef enum USART_PARITY_MODE
 	USART_PARITY_RESERVED = 0x01,
 	USART_PARITY_EVEN = 0x02,
 	USART_PARITY_ODD = 0x03
-// @formatter:on
+    // @formatter:on
 } usart_parity_mode_t;
 
 
@@ -51,5 +51,6 @@ void usart1_enable_isr_rx_complete(char enable_bool);
 
 void usart0_enable_isr_tx_complete(char enable_bool);
 void usart1_enable_isr_tx_complete(char enable_bool);
+
 
 #endif /* INCLUDES_COMM_USART_H_ */

@@ -74,7 +74,8 @@ typedef struct
 		int16_t encoder_count_tare;
 } oi_encoder_t;
 
-
+oi_encoder_t * newEncoder();
+void freeEncoder(oi_encoder_t * encoder);
 
 typedef struct
 {
@@ -87,13 +88,13 @@ typedef struct
 		int16_t right_requested_velocity;
 		int16_t left_requested_velocity;
 
-//		int16_t right_encoder_count;
-//		int16_t left_encoder_count;
-
-		oi_encoder_t left_encoder;
-		oi_encoder_t right_encoder;
+		oi_encoder_t * left_encoder;
+		oi_encoder_t * right_encoder;
 
 } oi_t;
+
+oi_t * newOISensorData();
+void freeOISensorData(oi_t * sensor);
 
 void oi_update_encoder(oi_encoder_t * encoder, int16_t raw_input);
 void oi_tare_encoders(oi_encoder_t * left_encoder, oi_encoder_t * right_encoder );

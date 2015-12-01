@@ -20,7 +20,11 @@ typedef struct SERVO_DATA
 
 void servo_init(servo_data_t * servo);
 void servo_calibrate(servo_data_t * servo, unsigned cal_0_degrees, unsigned cal_180_degrees);
+
+servo_data_t * newServo();
+void freeServo(servo_data_t * servo);
 void servo_set_position_deg(servo_data_t * servo, int degrees);
+void servo_set_pulse_width(servo_data_t *servo, unsigned int pulse_width);
 double servo_calculate_position_deg(servo_data_t * servo);
 void servo_increment_degrees(servo_data_t * servo, unsigned int amt);
 void servo_decrement_degrees(servo_data_t * servo, unsigned int amt);

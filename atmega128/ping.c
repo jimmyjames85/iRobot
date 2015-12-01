@@ -7,7 +7,33 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include <stdlib.h>
 #include "ping.h"
+
+inline ping_data_t * newPing()
+{
+    return malloc(sizeof(ping_data_t));
+}
+inline void freePing(ping_data_t * ping)
+{
+    free(ping);
+}
+
+volatile unsigned long volatile_timer1_overflows = 0;
+volatile unsigned long volatile_ping_send_pulse_start_time = 0;
+volatile char volatile_ping_capture_complete = 0;
+/*
+//FOR PING
+ISR(TIMER1_CAPT_vect)
+{
+    if (volatile_ping_capture_complete == 0)
+        volatile_ping_capture_complete = 1;
+}
+//FOR PING
+ISR(TIMER1_OVF_vect)
+{
+    volatile_timer1_overflows++;
+}*/
 
 void ping_enable_isrs(unsigned char enable_bool)
 {
@@ -27,10 +53,10 @@ void ping_send_pulse(volatile unsigned long *startTime)
 }
 
 //TODO I don't think this is necessary as long as the timer is not stopped
-void ping_init(timer_prescaler_t prescaler)
+void ping_init(ping_data_t * ping)
 {
     tmr1_set_mode(TIMER_MODE_NORMAL_MAX_TOP); //normal mode
-    tmr1_set_prescaler(prescaler); //TODO insure prescaler is not timer off
+    tmr1_set_prescaler(ping->prescaler); //TODO insure prescaler is not timer off
     //tmr1_enable_input_capture_isr(0);
     //tmr1_enable_overflow_isr(0);
 }
@@ -40,7 +66,7 @@ void ping_init(timer_prescaler_t prescaler)
  * uses timer1
  * assumes timer_mode == 0, but I think as long as the timer is running it should be okay
  * uses busy wait for both tmr1_capture_flag  and tmr1_overflow_flag
- * ISRs should be disabled
+ * ISRs should be disabled TODO temporarily disable ISRs ???
  *
  * assumes ping is connected to:
  *
@@ -51,7 +77,7 @@ void ping_init(timer_prescaler_t prescaler)
  */
 unsigned long ping_busy_wait()
 {
-    //TODO temporarily disable ISRs ???
+
     unsigned long start_pulse_time;
     unsigned long overflows = 0;
 
@@ -72,27 +98,26 @@ unsigned long ping_busy_wait()
     return delta;
 }
 
-unsigned ping_count_to_cm(timer_prescaler_t prescaler, unsigned long ping_count)
+unsigned ping_count_to_cm(ping_data_t * ping , unsigned long ping_count)
 {
-    return ping_count_to_mm(prescaler, ping_count) / 10;
+    return ping_count_to_mm(ping, ping_count) / 10;
 }
 
-unsigned ping_cm_busy_wait(timer_prescaler_t prescaler)
+unsigned ping_cm_busy_wait(ping_data_t *ping)
 {
     unsigned long delta = ping_busy_wait();
-    return ping_count_to_cm(prescaler, delta);
+    return ping_count_to_cm(ping, delta);
 }
 
-unsigned ping_count_to_mm(timer_prescaler_t prescaler, unsigned long ping_count)
+unsigned ping_count_to_mm(ping_data_t * ping, unsigned long ping_count)
 {
-    double seconds = ticks_to_secs(ping_count, prescaler, F_CPU) - 0.00075; // ping sensor delay is 750 us
+    double seconds = ticks_to_secs(ping_count, ping->prescaler, F_CPU) - 0.00075; // ping sensor delay is 750 us
     return (seconds * 343000 / 2);
 }
 
-unsigned ping_mm_busy_wait(timer_prescaler_t prescaler)
+unsigned ping_mm_busy_wait(ping_data_t * ping)
 {
     //TODO write tmr1_get_current_prescaler()
-
     unsigned long delta = ping_busy_wait();
-    return ping_count_to_mm(prescaler, delta);
+    return ping_count_to_mm(ping, delta);
 }

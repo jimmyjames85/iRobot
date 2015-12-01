@@ -6,6 +6,7 @@
  */
 #include <stdlib.h> /* malloc */
 #include <stdio.h>
+#include <string.h>
 #include "util.h"
 
 void ftoa(char * str, float val)
@@ -15,6 +16,7 @@ void ftoa(char * str, float val)
 	int8_t totalChars = sprintf(str, "%d.", intValue);
 	int8_t totalDecimalChars = 0;
 	val = val - intValue;
+
 
 	if (val < 0)
 		val *= -1;
@@ -51,3 +53,25 @@ int * newInt(int i)
 	*ret = i;
 	return ret;
 }
+
+/**
+ * returns a clone of cstr
+ */
+char * newCStr(const char * cstr)
+{
+    int cstr_len = (strlen(cstr) + 1);//plus 1 to include '\0'
+    char *newCStr = malloc(sizeof(char) * cstr_len);
+    memcpy((void *) newCStr, (const void *) cstr, cstr_len);
+    return newCStr;
+
+}
+/*
+char *trimCStr(char const *cstr)
+{
+    //trim leading spaces
+    while (*cstr != '\0' && *cstr == ' ')
+        cstr++;
+
+    return (char *)cstr;
+}
+*/

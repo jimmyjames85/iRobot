@@ -19,8 +19,8 @@ float distance_traveled_mm(oi_encoder_t * wheel_encoder)
 
 float fwd_distance_traveled_mm(oi_t * sensor)
 {
-	float distance_left = distance_traveled_mm(&(sensor->left_encoder));
-	float distance_right = distance_traveled_mm(&(sensor->right_encoder));
+	float distance_left = distance_traveled_mm(sensor->left_encoder);
+	float distance_right = distance_traveled_mm(sensor->right_encoder);
 	return (distance_left + distance_right) / 2;
 }
 
@@ -29,7 +29,7 @@ void move_forward_cm(oi_t *sensor, int centimeters)
 	long target_dist_mm = centimeters * 10;
 
 	oi_set_wheels(0, 0);
-	oi_tare_encoders(&(sensor->left_encoder), &(sensor->right_encoder));
+	oi_tare_encoders(sensor->left_encoder, sensor->right_encoder);
 	if (target_dist_mm <= 0)
 		return;
 
@@ -57,7 +57,7 @@ void turn_CW(oi_t *sensor, int degrees)
 	}
 
 	oi_set_wheels(0, 0);
-	oi_tare_encoders(&(sensor->left_encoder), &(sensor->right_encoder));
+	oi_tare_encoders(sensor->left_encoder, sensor->right_encoder);
 
 	if(degrees<=0)
 		return;
@@ -66,15 +66,15 @@ void turn_CW(oi_t *sensor, int degrees)
 
 	oi_set_wheels(speed, -speed);
 
-	float distance_left = abs(distance_traveled_mm(&(sensor->left_encoder)));
-	float distance_right = abs(distance_traveled_mm(&(sensor->right_encoder)));
+	float distance_left = abs(distance_traveled_mm(sensor->left_encoder));
+	float distance_right = abs(distance_traveled_mm(sensor->right_encoder));
 	float avg = (distance_left + distance_right)/2;
 
 	while(avg < target_rotation_mm )
 	{
 		oi_load_sensor_data(sensor);
-		distance_left = distance_traveled_mm(&(sensor->left_encoder));
-		distance_right = -1*distance_traveled_mm(&(sensor->right_encoder));
+		distance_left = distance_traveled_mm(sensor->left_encoder);
+		distance_right = -1*distance_traveled_mm(sensor->right_encoder);
 		avg = (distance_left + distance_right)/2;
 
 		if(target_rotation_mm/ avg <= 2)

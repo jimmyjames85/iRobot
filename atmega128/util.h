@@ -11,8 +11,9 @@
 #define PI 3.14159265
 
 void ftoa(char * str, float val);
-char * newChar(char c);
+char * newChar(const char c);
 int * newInt(int i);
 char isDigit(char c);
-
+char * newCStr(const char * c);
+//char *trimCStr(const char *cstr);
 #endif /* ATMEGA128_UTIL_H_ */
